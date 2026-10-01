@@ -13,7 +13,7 @@ export const revalidate = 60;
 
 export default async function Home() {
   const [noticias, enPortada, ranking, destacados] = await Promise.all([
-    obtenerFeed(),
+    obtenerFeed({ destacadaPrimero: true }),
     obtenerEnPortada(),
     obtenerRanking(),
     obtenerUsuariosDestacados(),

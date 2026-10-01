@@ -1,12 +1,27 @@
 import Link from "next/link";
+import { secciones } from "@/lib/estatico";
 import { Logo } from "./Logo";
 
+const aEnlace = (s: { slug: string; nombre: string }) => ({
+  texto: s.nombre,
+  href: `/seccion/${s.slug}`,
+});
+
+// Las páginas de "Sobre nosotros" todavía no existen
 const columnas = [
-  { titulo: "Secciones", enlaces: ["México", "Mundo", "Economía", "Tecnología"] },
-  { titulo: "Más", enlaces: ["Ciencia", "Deportes", "Opinión", "Estilo de vida"] },
+  { titulo: "Secciones", enlaces: secciones.slice(0, 3).map(aEnlace) },
+  {
+    titulo: "Más",
+    enlaces: [
+      ...secciones.slice(3).map(aEnlace),
+      { texto: "Todas las noticias", href: "/noticias" },
+    ],
+  },
   {
     titulo: "Sobre nosotros",
-    enlaces: ["Nuestra historia", "Cómo calificamos", "Código de ética", "Contacto"],
+    enlaces: ["Nuestra historia", "Cómo calificamos", "Código de ética", "Contacto"].map(
+      (texto) => ({ texto, href: "#" }),
+    ),
   },
 ];
 
@@ -24,9 +39,9 @@ export function Footer() {
             <p className="mb-2 text-sm font-semibold text-white">{c.titulo}</p>
             <ul className="flex flex-col gap-1.5 text-sm">
               {c.enlaces.map((e) => (
-                <li key={e}>
-                  <Link href="#" className="hover:text-white">
-                    {e}
+                <li key={e.texto}>
+                  <Link href={e.href} className="hover:text-white">
+                    {e.texto}
                   </Link>
                 </li>
               ))}

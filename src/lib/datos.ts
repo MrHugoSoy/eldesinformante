@@ -2,7 +2,15 @@
 // a los tipos que usan los componentes (src/lib/types.ts).
 
 import { clientePublico } from "./supabase/publico";
-import type { Autor, Categoria, Noticia, NotaComunidad, Usuario } from "./types";
+import type {
+  Autor,
+  Categoria,
+  CredibilidadAgregada,
+  Noticia,
+  NoticiaCompleta,
+  NotaComunidad,
+  Usuario,
+} from "./types";
 
 const SELECT_NOTICIA = `
   id, slug, titulo, resumen, imagen_url, ciudad, publicado_en, destacada,
@@ -110,17 +118,160 @@ function lanzar(error: { message: string } | null, que: string) {
   if (error) throw new Error(`Supabase (${que}): ${error.message}`);
 }
 
-/** Noticias publicadas: la destacada primero y luego las más recientes. */
-export async function obtenerFeed(limite = 20): Promise<Noticia[]> {
-  const { data, error } = await clientePublico()
-    .from("feed_noticias")
-    .select(SELECT_NOTICIA)
-    .order("destacada", { ascending: false })
+type FiltrosFeed = {
+  limite?: number;
+  /** true = la destacada va primero (portada) */
+  destacadaPrimero?: boolean;
+  categoria?: string;
+  autorId?: string;
+  medioId?: string;
+  ids?: string[];
+};
+
+/** Noticias publicadas, de la más reciente a la más antigua, con filtros opcionales. */
+export async function obtenerFeed({
+  limite = 20,
+  destacadaPrimero = false,
+  categoria,
+  autorId,
+  medioId,
+  ids,
+}: FiltrosFeed = {}): Promise<Noticia[]> {
+  // Para filtrar por medio hace falta un join obligatorio (!inner) con autores
+  const select = medioId
+    ? SELECT_NOTICIA.replace("autor:autores (", "autor:autores!inner (")
+    : SELECT_NOTICIA;
+
+  let consulta = clientePublico().from("feed_noticias").select(select);
+  if (categoria) consulta = consulta.eq("categoria_slug", categoria);
+  if (autorId) consulta = consulta.eq("autor_id", autorId);
+  if (medioId) consulta = consulta.eq("autor.medio_id", medioId);
+  if (ids) consulta = consulta.in("id", ids);
+  if (destacadaPrimero) consulta = consulta.order("destacada", { ascending: false });
+
+  const { data, error } = await consulta
     .order("publicado_en", { ascending: false })
     .limit(limite)
     .overrideTypes<FilaNoticia[], { merge: false }>();
   lanzar(error, "feed");
   return (data ?? []).map(aNoticia);
+}
+
+/** Una noticia con su texto completo y comentarios; null si no existe o no está publicada. */
+export async function obtenerNoticia(slug: string): Promise<NoticiaCompleta | null> {
+  const { data, error } = await clientePublico()
+    .from("feed_noticias")
+    .select(
+      `${SELECT_NOTICIA},
+      contenido, url_original,
+      comentarios:comentarios (
+        id, texto, creado_en,
+        autor:perfiles!comentarios_autor_id_fkey ( nombre )
+      )`,
+    )
+    .eq("slug", slug)
+    .order("creado_en", { referencedTable: "comentarios", ascending: true })
+    .maybeSingle()
+    .overrideTypes<
+      FilaNoticia & {
+        contenido: string | null;
+        url_original: string | null;
+        comentarios: {
+          id: string;
+          texto: string;
+          creado_en: string;
+          autor: { nombre: string } | null;
+        }[];
+      },
+      { merge: false }
+    >();
+  lanzar(error, "noticia");
+  if (!data) return null;
+
+  return {
+    ...aNoticia(data),
+    contenido: data.contenido,
+    urlOriginal: data.url_original,
+    listaComentarios: data.comentarios.map((c) => ({
+      id: c.id,
+      autor: c.autor?.nombre ?? "Usuario",
+      texto: c.texto,
+      creadoEn: c.creado_en,
+    })),
+  };
+}
+
+/** Quita acentos para que la búsqueda coincida con el índice (que también los quita). */
+function sinAcentos(texto: string) {
+  return texto.normalize("NFD").replace(/\p{Diacritic}/gu, "");
+}
+
+/** Búsqueda en español por título, resumen y contenido. */
+export async function buscarNoticias(texto: string): Promise<Noticia[]> {
+  const q = sinAcentos(texto.trim()).slice(0, 100);
+  if (!q) return [];
+
+  const { data, error } = await clientePublico()
+    .from("noticias")
+    .select("id")
+    .eq("estado", "publicada")
+    .textSearch("busqueda", q, { type: "websearch", config: "spanish" })
+    .limit(30);
+  lanzar(error, "búsqueda");
+  const ids = (data ?? []).map((n) => n.id);
+  return ids.length ? obtenerFeed({ ids, limite: 30 }) : [];
+}
+
+function aCredibilidad(
+  fila: { fuente: number | null; contenido: number | null; contexto: number | null; total_noticias: number | null } | null,
+): CredibilidadAgregada {
+  return {
+    calificacion:
+      fila && fila.fuente !== null
+        ? {
+            fuente: Number(fila.fuente),
+            contenido: Number(fila.contenido),
+            contexto: Number(fila.contexto),
+          }
+        : null,
+    totalNoticias: fila?.total_noticias ?? 0,
+  };
+}
+
+export async function obtenerAutor(id: string) {
+  const supabase = clientePublico();
+  const [{ data: autor, error }, { data: cred }] = await Promise.all([
+    supabase
+      .from("autores")
+      .select("id, nombre, medio:medios ( id, nombre, dominio, verificado )")
+      .eq("id", id)
+      .maybeSingle(),
+    supabase.from("credibilidad_autores").select("*").eq("autor_id", id).maybeSingle(),
+  ]);
+  lanzar(error, "autor");
+  if (!autor) return null;
+  return { autor, credibilidad: aCredibilidad(cred) };
+}
+
+export async function obtenerMedio(id: string) {
+  const supabase = clientePublico();
+  const [{ data: medio, error }, { data: cred }] = await Promise.all([
+    supabase.from("medios").select("id, nombre, dominio, verificado").eq("id", id).maybeSingle(),
+    supabase.from("credibilidad_medios").select("*").eq("medio_id", id).maybeSingle(),
+  ]);
+  lanzar(error, "medio");
+  if (!medio) return null;
+  return { medio, credibilidad: aCredibilidad(cred) };
+}
+
+export async function obtenerCategoria(slug: string): Promise<Categoria | null> {
+  const { data, error } = await clientePublico()
+    .from("categorias")
+    .select("slug, nombre")
+    .eq("slug", slug)
+    .maybeSingle();
+  lanzar(error, "categoría");
+  return data;
 }
 
 /** "En la portada": las noticias con más likes (sin la destacada). */
@@ -168,13 +319,4 @@ export async function obtenerUsuariosDestacados(limite = 5): Promise<Usuario[]> 
     .limit(limite);
   lanzar(error, "usuarios destacados");
   return (data ?? []).map((p) => aUsuario(p));
-}
-
-export async function obtenerCategorias(): Promise<Categoria[]> {
-  const { data, error } = await clientePublico()
-    .from("categorias")
-    .select("slug, nombre")
-    .order("orden");
-  lanzar(error, "categorías");
-  return data ?? [];
 }

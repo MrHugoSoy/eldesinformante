@@ -1,33 +1,15 @@
-﻿import Image from "next/image";
+import Image from "next/image";
 import Link from "next/link";
 import { MessageSquare, Share2, Star } from "lucide-react";
 import { indiceCredibilidad } from "@/lib/credibilidad";
-import { fechaHora, numeroCorto } from "@/lib/formato";
+import { numeroCorto } from "@/lib/formato";
 import type { Noticia } from "@/lib/types";
 import { AccionesNoticia } from "./AccionesNoticia";
-import { Avatar } from "./Avatar";
+
 import { BarraCredibilidad } from "./BarraCredibilidad";
+import { Byline } from "./Byline";
 import { EtiquetaCategoria } from "./EtiquetaCategoria";
 import { NotasComunidad } from "./NotasComunidad";
-
-function Byline({ noticia, claro = false }: { noticia: Noticia; claro?: boolean }) {
-  return (
-    <div className="flex items-center gap-2.5">
-      <Avatar nombre={noticia.autor.nombre} />
-      <div className="text-xs leading-snug">
-        <p className={`font-semibold ${claro ? "text-white" : "text-slate-800"}`}>
-          Por {noticia.autor.nombre}
-          <span className={`font-normal ${claro ? "text-slate-300" : "text-slate-500"}`}>
-            {" "}· {noticia.autor.medio.nombre}
-          </span>
-        </p>
-        <p className={claro ? "text-slate-300" : "text-slate-500"}>
-          {noticia.ciudad} · {fechaHora(noticia.publicadoEn)}
-        </p>
-      </div>
-    </div>
-  );
-}
 
 /** Noticia principal con imagen de fondo a todo lo ancho. */
 export function NoticiaDestacada({ noticia }: { noticia: Noticia }) {

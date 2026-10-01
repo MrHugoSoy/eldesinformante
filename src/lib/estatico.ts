@@ -1,12 +1,11 @@
 // Contenido que todavía no sale de Supabase:
-// - menú, intereses y reglas de puntos: fijos por ahora
+// - menú y reglas de puntos: fijos por ahora
 // - tendencias: se calcularán en la Fase 8 (social)
 
 import type { Categoria, Tendencia } from "./types";
 
-export const menuCategorias: Categoria[] = [
-  { slug: "", nombre: "Inicio" },
-  { slug: "noticias", nombre: "Noticias" },
+/** Secciones fijas del menú (deben existir en la tabla categorias). */
+export const secciones: Categoria[] = [
   { slug: "mexico", nombre: "México" },
   { slug: "mundo", nombre: "Mundo" },
   { slug: "economia", nombre: "Economía" },
@@ -15,14 +14,10 @@ export const menuCategorias: Categoria[] = [
   { slug: "deportes", nombre: "Deportes" },
 ];
 
-export const intereses = [
-  "México",
-  "Mundo",
-  "Economía",
-  "Tecnología",
-  "Ciencia",
-  "Deportes",
-  "MedioAmbiente",
+export const menuPrincipal: { href: string; nombre: string }[] = [
+  { href: "/", nombre: "Inicio" },
+  { href: "/noticias", nombre: "Noticias" },
+  ...secciones.map((s) => ({ href: `/seccion/${s.slug}`, nombre: s.nombre })),
 ];
 
 export const tendencias: Tendencia[] = [

@@ -60,6 +60,26 @@ export type Noticia = {
   comentarios: number;
 };
 
+/** Noticia con todo lo necesario para su página de detalle. */
+export type NoticiaCompleta = Noticia & {
+  contenido: string | null;
+  urlOriginal: string | null;
+  listaComentarios: Comentario[];
+};
+
+export type Comentario = {
+  id: string;
+  autor: string;
+  texto: string;
+  creadoEn: string;
+};
+
+/** Credibilidad agregada de un autor o un medio. */
+export type CredibilidadAgregada = {
+  calificacion: Calificacion | null;
+  totalNoticias: number;
+};
+
 export type Tendencia = {
   hashtag: string;
   menciones: number;

@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, MessageCircle, MessageSquare, Plus, Star } from "lucide-react";
+import { MessageCircle, MessageSquare, Plus, Star } from "lucide-react";
 import { fechaHora, numeroCorto } from "@/lib/formato";
 import { tendencias } from "@/lib/estatico";
 import type { Noticia, Usuario } from "@/lib/types";
@@ -66,11 +66,6 @@ function Ranking({ ranking }: { ranking: Usuario[] }) {
   return (
     <TarjetaLateral
       titulo="Ranking de la semana"
-      accion={
-        <Link href="#" className="flex items-center gap-1 text-xs text-acento hover:underline">
-          Ver todos <ArrowRight className="size-3" />
-        </Link>
-      }
     >
       <ol className="flex flex-col gap-3">
         {ranking.map((u, i) => (
@@ -122,7 +117,11 @@ function Tendencias() {
         {tendencias.map((t, i) => (
           <li key={t.hashtag} className="flex items-center gap-3">
             <span className="w-3 text-slate-500">{i + 1}</span>
-            <Link href="#" className="flex-1 font-medium text-acento hover:underline">
+            <Link
+              // "PlanDeSeguridad" → busca "Plan De Seguridad"
+              href={`/buscar?q=${encodeURIComponent(t.hashtag.replace(/(\p{Ll})(\p{Lu})/gu, "$1 $2"))}`}
+              className="flex-1 font-medium text-acento hover:underline"
+            >
               #{t.hashtag}
             </Link>
             <span className="text-xs text-slate-500">{numeroCorto(t.menciones)}</span>

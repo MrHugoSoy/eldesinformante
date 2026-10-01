@@ -424,6 +424,7 @@ export type Database = {
       noticias: {
         Row: {
           autor_id: string | null
+          busqueda: unknown
           categoria_slug: string
           ciudad: string | null
           contenido: string | null
@@ -441,6 +442,7 @@ export type Database = {
         }
         Insert: {
           autor_id?: string | null
+          busqueda?: unknown
           categoria_slug: string
           ciudad?: string | null
           contenido?: string | null
@@ -458,6 +460,7 @@ export type Database = {
         }
         Update: {
           autor_id?: string | null
+          busqueda?: unknown
           categoria_slug?: string
           ciudad?: string | null
           contenido?: string | null

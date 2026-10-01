@@ -1,26 +1,31 @@
+"use client";
+
 import Link from "next/link";
-import { Compass, House, Newspaper, Plus, Star, UserRound, Users } from "lucide-react";
-import { intereses } from "@/lib/estatico";
+import { usePathname } from "next/navigation";
+import { House, Newspaper, Plus, Search, Star, UserRound } from "lucide-react";
+import { secciones } from "@/lib/estatico";
+import { esActivo } from "./MenuSecciones";
 
 const enlaces = [
   { href: "/", texto: "Inicio", icono: House },
   { href: "/noticias", texto: "Noticias", icono: Newspaper },
-  { href: "/explorar", texto: "Explorar", icono: Compass },
-  { href: "/comunidades", texto: "Comunidades", icono: Users },
+  { href: "/buscar", texto: "Buscar", icono: Search },
   { href: "/perfil", texto: "Mi perfil", icono: UserRound },
 ];
 
 /** Contenido del menú lateral; se usa en el sidebar de escritorio y en el menú móvil. */
 export function NavegacionPrincipal() {
+  const pathname = usePathname();
+
   return (
     <div className="flex flex-col gap-6 text-sm">
       <nav className="flex flex-col gap-1">
-        {enlaces.map(({ href, texto, icono: Icono }, i) => (
+        {enlaces.map(({ href, texto, icono: Icono }) => (
           <Link
             key={href}
             href={href}
             className={`flex items-center gap-3 rounded-lg px-3 py-2.5 transition hover:bg-white/10 ${
-              i === 0 ? "bg-marino-700 font-semibold text-white" : "text-slate-200"
+              esActivo(pathname, href) ? "bg-marino-700 font-semibold text-white" : "text-slate-200"
             }`}
           >
             <Icono className="size-5" />
@@ -30,21 +35,23 @@ export function NavegacionPrincipal() {
       </nav>
 
       <div>
-        <div className="mb-2 flex items-center justify-between px-3">
-          <span className="font-semibold text-white">Mis intereses</span>
-          <button className="text-xs text-sky-400 hover:underline">Editar</button>
-        </div>
+        <p className="mb-2 px-3 font-semibold text-white">Secciones</p>
         <ul className="flex flex-col">
-          {intereses.map((t) => (
-            <li key={t}>
-              <Link
-                href={`/tema/${encodeURIComponent(t)}`}
-                className="block rounded px-3 py-1.5 text-slate-300 hover:bg-white/10 hover:text-white"
-              >
-                #{t}
-              </Link>
-            </li>
-          ))}
+          {secciones.map((s) => {
+            const href = `/seccion/${s.slug}`;
+            return (
+              <li key={s.slug}>
+                <Link
+                  href={href}
+                  className={`block rounded px-3 py-1.5 hover:bg-white/10 hover:text-white ${
+                    esActivo(pathname, href) ? "font-semibold text-white" : "text-slate-300"
+                  }`}
+                >
+                  #{s.nombre}
+                </Link>
+              </li>
+            );
+          })}
         </ul>
       </div>
 
