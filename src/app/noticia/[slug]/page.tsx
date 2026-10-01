@@ -8,6 +8,7 @@ import { Avatar } from "@/components/Avatar";
 import { BarraCredibilidad } from "@/components/BarraCredibilidad";
 import { Byline } from "@/components/Byline";
 import { EtiquetaCategoria } from "@/components/EtiquetaCategoria";
+import { PanelCalificar } from "@/components/interaccion/PanelCalificar";
 import { NotasComunidad } from "@/components/NotasComunidad";
 import { obtenerNoticia } from "@/lib/datos";
 import { fechaHora } from "@/lib/formato";
@@ -103,8 +104,10 @@ export default async function PaginaNoticia({ params }: PageProps<"/noticia/[slu
           )}
         </div>
 
-        <div className="border-t border-slate-200">
-          <NotasComunidad notas={noticia.notas} />
+        <PanelCalificar noticiaId={noticia.id} slug={noticia.slug} />
+
+        <div className="border-t border-slate-200 sm:px-4 sm:py-2">
+          <NotasComunidad notas={noticia.notas} slug={noticia.slug} noticiaId={noticia.id} />
         </div>
         <AccionesNoticia likes={noticia.likes} comentarios={noticia.comentarios} />
       </article>

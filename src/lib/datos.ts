@@ -18,7 +18,7 @@ const SELECT_NOTICIA = `
   categoria:categorias ( slug, nombre ),
   autor:autores ( id, nombre, medio:medios ( id, nombre, dominio, verificado ) ),
   notas:notas_comunidad (
-    id, texto, fuente_url, votos_utiles,
+    id, texto, fuente_url, votos_utiles, votos_no_utiles,
     autor:perfiles!notas_comunidad_autor_id_fkey ( id, nombre, descripcion, reputacion, puntos )
   )
 `;
@@ -71,6 +71,7 @@ type FilaNoticia = {
     texto: string;
     fuente_url: string;
     votos_utiles: number;
+    votos_no_utiles: number;
     autor: FilaPerfil | null;
   }[];
 };
@@ -85,6 +86,7 @@ function aNoticia(f: FilaNoticia): Noticia {
       texto: n.texto,
       fuenteUrl: n.fuente_url,
       utilPara: n.votos_utiles,
+      noUtilPara: n.votos_no_utiles,
     }));
 
   return {

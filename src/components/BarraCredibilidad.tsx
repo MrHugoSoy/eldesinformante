@@ -1,4 +1,5 @@
-import { ChevronDown, ShieldCheck } from "lucide-react";
+import Link from "next/link";
+import { ChevronRight, ShieldCheck } from "lucide-react";
 import {
   etiquetaEje,
   nivelCredibilidad,
@@ -20,18 +21,31 @@ const colorEscudo: Record<Nivel, string> = {
   baja: "text-cred-baja",
 };
 
+function EnlaceVerificar({ href }: { href: string }) {
+  return (
+    <Link
+      href={href}
+      className="flex items-center gap-0.5 whitespace-nowrap text-sm font-semibold text-acento hover:underline"
+    >
+      Verifica la noticia <ChevronRight className="size-4" />
+    </Link>
+  );
+}
+
 export function BarraCredibilidad({
   calificacion,
-  conBoton = false,
+  enlaceVerificar,
 }: {
   calificacion: Calificacion | null;
-  conBoton?: boolean;
+  /** Si se indica, muestra "Verifica la noticia" enlazando ahí (p. ej. /noticia/x#verificar) */
+  enlaceVerificar?: string;
 }) {
   if (!calificacion) {
     return (
-      <div className="flex items-center gap-2 border-y border-slate-200 bg-slate-50/60 px-4 py-3 text-sm text-slate-500">
+      <div className="flex flex-wrap items-center gap-2 border-y border-slate-200 bg-slate-50/60 px-4 py-3 text-sm text-slate-500">
         <ShieldCheck className="size-7 shrink-0 text-slate-400" />
         Aún sin calificaciones. Sé de los primeros en verificar esta noticia.
+        {enlaceVerificar && <EnlaceVerificar href={enlaceVerificar} />}
       </div>
     );
   }
@@ -43,11 +57,7 @@ export function BarraCredibilidad({
     <div className="flex flex-col gap-3 border-y border-slate-200 bg-slate-50/60 px-4 py-3 sm:flex-row sm:items-center sm:gap-4">
       <div className="flex items-center gap-2">
         <ShieldCheck className={`size-7 shrink-0 ${colorEscudo[peor]}`} />
-        {conBoton && (
-          <button className="flex items-center gap-1 whitespace-nowrap text-sm font-semibold text-acento hover:underline">
-            Verifica la noticia <ChevronDown className="size-4" />
-          </button>
-        )}
+        {enlaceVerificar && <EnlaceVerificar href={enlaceVerificar} />}
       </div>
 
       <dl className="grid flex-1 grid-cols-3 gap-2 sm:divide-x sm:divide-slate-200">

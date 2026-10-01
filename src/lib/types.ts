@@ -40,6 +40,7 @@ export type NotaComunidad = {
   texto: string;
   fuenteUrl: string;
   utilPara: number;
+  noUtilPara: number;
 };
 
 export type Noticia = {
