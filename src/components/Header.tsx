@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { Bell, ChevronDown, Search } from "lucide-react";
-import { menuCategorias, usuarioActual } from "@/lib/estatico";
-import { Avatar } from "./Avatar";
+import { menuCategorias } from "@/lib/estatico";
+
 import { Logo } from "./Logo";
 import { MenuMovil } from "./MenuMovil";
+import { MenuUsuario } from "./MenuUsuario";
 import { NavegacionPrincipal } from "./NavegacionPrincipal";
 
 export function Header() {
@@ -58,7 +59,7 @@ export function Header() {
               3
             </span>
           </button>
-          <Avatar nombre={usuarioActual.nombre} />
+          <MenuUsuario />
         </div>
       </div>
     </header>

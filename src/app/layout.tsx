@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Source_Serif_4 } from "next/font/google";
+import { Footer } from "@/components/Footer";
+import { Header } from "@/components/Header";
+import { ProveedorSesion } from "@/components/Sesion";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -28,7 +31,16 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="es"
       className={`${geistSans.variable} ${sourceSerif.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col font-sans">{children}</body>
+      <body className="min-h-full flex flex-col font-sans">
+        <ProveedorSesion>
+          <Header />
+          <div className="border-b border-amber-200 bg-amber-50 px-4 py-2 text-center text-xs text-amber-900">
+            Versión de demostración: las noticias, personas y fuentes que ves son ficticias.
+          </div>
+          {children}
+          <Footer />
+        </ProveedorSesion>
+      </body>
     </html>
   );
 }

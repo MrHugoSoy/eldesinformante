@@ -1,36 +1,17 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, MessageCircle, MessageSquare, Plus, Star, Triangle } from "lucide-react";
-import { nivelReputacion } from "@/lib/credibilidad";
+import { ArrowRight, MessageCircle, MessageSquare, Plus, Star } from "lucide-react";
 import { fechaHora, numeroCorto } from "@/lib/formato";
-import { reglasPuntos, tendencias, usuarioActual } from "@/lib/estatico";
+import { tendencias } from "@/lib/estatico";
 import type { Noticia, Usuario } from "@/lib/types";
 import { Avatar } from "./Avatar";
 import { EtiquetaCategoria } from "./EtiquetaCategoria";
-
-function Tarjeta({
-  titulo,
-  accion,
-  children,
-}: {
-  titulo: React.ReactNode;
-  accion?: React.ReactNode;
-  children: React.ReactNode;
-}) {
-  return (
-    <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-      <div className="mb-3 flex items-center justify-between gap-2">
-        <h2 className="font-serif text-lg font-semibold text-slate-900">{titulo}</h2>
-        {accion}
-      </div>
-      {children}
-    </section>
-  );
-}
+import { TarjetaLateral } from "./TarjetaLateral";
+import { TuReputacion } from "./TuReputacion";
 
 function EnLaPortada({ noticias }: { noticias: Noticia[] }) {
   return (
-    <Tarjeta titulo="En la portada">
+    <TarjetaLateral titulo="En la portada">
       <ul className="flex flex-col gap-4">
         {noticias.map((n) => (
           <li key={n.id}>
@@ -52,13 +33,13 @@ function EnLaPortada({ noticias }: { noticias: Noticia[] }) {
           </li>
         ))}
       </ul>
-    </Tarjeta>
+    </TarjetaLateral>
   );
 }
 
 function UsuariosDestacados({ usuarios }: { usuarios: Usuario[] }) {
   return (
-    <Tarjeta
+    <TarjetaLateral
       titulo="Usuarios destacados"
       accion={
         <button className="flex items-center gap-1 rounded-md border border-acento/40 px-2 py-1 text-xs font-semibold text-acento hover:bg-acento/5">
@@ -77,66 +58,13 @@ function UsuariosDestacados({ usuarios }: { usuarios: Usuario[] }) {
           </li>
         ))}
       </ul>
-    </Tarjeta>
-  );
-}
-
-function TuReputacion() {
-  const { actual, siguiente, progreso } = nivelReputacion(usuarioActual.puntos);
-  return (
-    <Tarjeta
-      titulo={
-        <span className="flex items-center gap-2">
-          <Star className="size-5 fill-marino-900 text-marino-900" /> Tu reputación
-        </span>
-      }
-    >
-      <div className="flex items-baseline gap-2">
-        <Star className="size-6 self-center fill-marino-900 text-marino-900" />
-        <span className="font-serif text-4xl font-bold text-marino-900">
-          {usuarioActual.reputacion.toFixed(1)}
-        </span>
-        <span className="text-sm text-slate-500">({usuarioActual.puntos} puntos)</span>
-      </div>
-      <p className="mt-1 text-sm font-medium text-acento">Nivel: {actual.nombre}</p>
-      <div
-        className="mt-2 h-2 overflow-hidden rounded-full bg-slate-200"
-        role="progressbar"
-        aria-valuenow={Math.round(progreso * 100)}
-        aria-valuemin={0}
-        aria-valuemax={100}
-      >
-        <div className="h-full rounded-full bg-acento" style={{ width: `${progreso * 100}%` }} />
-      </div>
-      {siguiente && (
-        <p className="mt-1 text-xs text-slate-500">
-          Te faltan {siguiente.desde - usuarioActual.puntos} puntos para {siguiente.nombre}
-        </p>
-      )}
-
-      <p className="mt-4 text-sm font-semibold text-slate-800">Cómo ganas puntos:</p>
-      <ul className="mt-2 flex flex-col gap-1.5 text-xs">
-        {reglasPuntos.map((r) => (
-          <li key={r.texto} className="flex items-center gap-2">
-            <Triangle className="size-2.5 fill-marino-900 text-marino-900" />
-            <span className="w-7 font-semibold text-emerald-600">+{r.puntos}</span>
-            <span className="text-slate-600">{r.texto}</span>
-          </li>
-        ))}
-      </ul>
-      <Link
-        href="/perfil"
-        className="mt-4 block rounded-lg border border-acento/40 py-2 text-center text-sm font-semibold text-acento hover:bg-acento/5"
-      >
-        Ver mi perfil
-      </Link>
-    </Tarjeta>
+    </TarjetaLateral>
   );
 }
 
 function Ranking({ ranking }: { ranking: Usuario[] }) {
   return (
-    <Tarjeta
+    <TarjetaLateral
       titulo="Ranking de la semana"
       accion={
         <Link href="#" className="flex items-center gap-1 text-xs text-acento hover:underline">
@@ -163,7 +91,7 @@ function Ranking({ ranking }: { ranking: Usuario[] }) {
           </li>
         ))}
       </ol>
-    </Tarjeta>
+    </TarjetaLateral>
   );
 }
 
@@ -189,7 +117,7 @@ function QueOpinas() {
 
 function Tendencias() {
   return (
-    <Tarjeta titulo="Tendencias en la comunidad">
+    <TarjetaLateral titulo="Tendencias en la comunidad">
       <ol className="flex flex-col gap-2.5 text-sm">
         {tendencias.map((t, i) => (
           <li key={t.hashtag} className="flex items-center gap-3">
@@ -201,7 +129,7 @@ function Tendencias() {
           </li>
         ))}
       </ol>
-    </Tarjeta>
+    </TarjetaLateral>
   );
 }
 

@@ -1,9 +1,8 @@
 // Contenido que todavía no sale de Supabase:
 // - menú, intereses y reglas de puntos: fijos por ahora
-// - usuarioActual: se reemplaza por la sesión real en la Fase 4 (login)
 // - tendencias: se calcularán en la Fase 8 (social)
 
-import type { Categoria, Tendencia, Usuario } from "./types";
+import type { Categoria, Tendencia } from "./types";
 
 export const menuCategorias: Categoria[] = [
   { slug: "", nombre: "Inicio" },
@@ -15,16 +14,6 @@ export const menuCategorias: Categoria[] = [
   { slug: "ciencia", nombre: "Ciencia" },
   { slug: "deportes", nombre: "Deportes" },
 ];
-
-/** Usuario con sesión iniciada (de ejemplo hasta la Fase 4). */
-export const usuarioActual: Usuario = {
-  id: "u0",
-  nombre: "Usuario Demo",
-  rol: "Analista",
-  reputacion: 4.7,
-  puntos: 892,
-  puntosSemana: 34,
-};
 
 export const intereses = [
   "México",
