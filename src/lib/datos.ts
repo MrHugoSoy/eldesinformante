@@ -174,8 +174,8 @@ export async function obtenerNoticia(slug: string): Promise<NoticiaCompleta | nu
       `${SELECT_NOTICIA},
       contenido, url_original,
       comentarios:comentarios (
-        id, texto, creado_en,
-        autor:perfiles!comentarios_autor_id_fkey ( nombre )
+        id, texto, creado_en, editado_en, destacado,
+        autor:perfiles!comentarios_autor_id_fkey ( id, nombre, usuario, fuente_verificada )
       )`,
     )
     .eq("slug", slug)
@@ -189,7 +189,9 @@ export async function obtenerNoticia(slug: string): Promise<NoticiaCompleta | nu
           id: string;
           texto: string;
           creado_en: string;
-          autor: { nombre: string } | null;
+          editado_en: string | null;
+          destacado: boolean;
+          autor: { id: string; nombre: string; usuario: string | null; fuente_verificada: boolean } | null;
         }[];
       },
       { merge: false }
@@ -203,9 +205,16 @@ export async function obtenerNoticia(slug: string): Promise<NoticiaCompleta | nu
     urlOriginal: data.url_original,
     listaComentarios: data.comentarios.map((c) => ({
       id: c.id,
-      autor: c.autor?.nombre ?? "Usuario",
+      autor: {
+        id: c.autor?.id ?? "",
+        nombre: c.autor?.nombre ?? "Usuario",
+        usuario: c.autor?.usuario ?? null,
+        fuenteVerificada: c.autor?.fuente_verificada ?? false,
+      },
       texto: c.texto,
       creadoEn: c.creado_en,
+      editadoEn: c.editado_en,
+      destacado: c.destacado,
     })),
   };
 }
@@ -332,6 +341,16 @@ export async function obtenerUsuariosDestacados(limite = 5): Promise<Usuario[]> 
     .limit(limite);
   lanzar(error, "usuarios destacados");
   return (data ?? []).map((p) => aUsuario(p));
+}
+
+/** Secciones con más actividad (calificaciones, notas, comentarios, likes) en 7 días. */
+export async function obtenerTendencias(limite = 5): Promise<{ slug: string; nombre: string; actividad: number }[]> {
+  const { data, error } = await clientePublico()
+    .from("tendencias_semana")
+    .select("slug, nombre, actividad")
+    .limit(limite);
+  lanzar(error, "tendencias");
+  return (data ?? []).map((t) => ({ slug: t.slug!, nombre: t.nombre!, actividad: t.actividad ?? 0 }));
 }
 
 /** Perfil público por nombre de usuario o, si no tiene, por id. */

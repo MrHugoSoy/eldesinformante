@@ -5,6 +5,7 @@ import {
   obtenerEnPortada,
   obtenerFeed,
   obtenerRanking,
+  obtenerTendencias,
   obtenerUsuariosDestacados,
 } from "@/lib/datos";
 
@@ -12,11 +13,12 @@ import {
 export const revalidate = 60;
 
 export default async function Home() {
-  const [noticias, enPortada, ranking, destacados] = await Promise.all([
+  const [noticias, enPortada, ranking, destacados, tendencias] = await Promise.all([
     obtenerFeed({ destacadaPrimero: true }),
     obtenerEnPortada(),
     obtenerRanking(),
     obtenerUsuariosDestacados(),
+    obtenerTendencias(),
   ]);
   const [destacada, ...resto] = noticias;
 
@@ -41,7 +43,7 @@ export default async function Home() {
             <TarjetaNoticia key={n.id} noticia={n} />
           ))}
         </div>
-        <SidebarDerecho enPortada={enPortada} ranking={ranking} destacados={destacados} />
+        <SidebarDerecho enPortada={enPortada} ranking={ranking} destacados={destacados} tendencias={tendencias} />
       </main>
     </div>
   );

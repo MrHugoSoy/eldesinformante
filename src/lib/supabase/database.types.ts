@@ -144,22 +144,31 @@ export type Database = {
         Row: {
           autor_id: string
           creado_en: string
+          destacado: boolean
+          editado_en: string | null
           id: string
           noticia_id: string
+          oculto: boolean
           texto: string
         }
         Insert: {
           autor_id?: string
           creado_en?: string
+          destacado?: boolean
+          editado_en?: string | null
           id?: string
           noticia_id: string
+          oculto?: boolean
           texto: string
         }
         Update: {
           autor_id?: string
           creado_en?: string
+          destacado?: boolean
+          editado_en?: string | null
           id?: string
           noticia_id?: string
+          oculto?: boolean
           texto?: string
         }
         Relationships: [
@@ -359,6 +368,58 @@ export type Database = {
         }
         Relationships: []
       }
+      notificaciones: {
+        Row: {
+          actor_id: string | null
+          creado_en: string
+          id: string
+          leida: boolean
+          noticia_id: string | null
+          tipo: string
+          usuario_id: string
+        }
+        Insert: {
+          actor_id?: string | null
+          creado_en?: string
+          id?: string
+          leida?: boolean
+          noticia_id?: string | null
+          tipo: string
+          usuario_id: string
+        }
+        Update: {
+          actor_id?: string | null
+          creado_en?: string
+          id?: string
+          leida?: boolean
+          noticia_id?: string | null
+          tipo?: string
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notificaciones_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "perfiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notificaciones_noticia_id_fkey"
+            columns: ["noticia_id"]
+            isOneToOne: false
+            referencedRelation: "noticias"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notificaciones_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "perfiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notas_comunidad: {
         Row: {
           autor_id: string
@@ -366,6 +427,7 @@ export type Database = {
           estado: string
           fuente_url: string
           id: string
+          moderada: boolean
           noticia_id: string
           texto: string
           votos_no_utiles: number
@@ -377,6 +439,7 @@ export type Database = {
           estado?: string
           fuente_url: string
           id?: string
+          moderada?: boolean
           noticia_id: string
           texto: string
           votos_no_utiles?: number
@@ -388,6 +451,7 @@ export type Database = {
           estado?: string
           fuente_url?: string
           id?: string
+          moderada?: boolean
           noticia_id?: string
           texto?: string
           votos_no_utiles?: number
@@ -724,9 +788,28 @@ export type Database = {
         }
         Relationships: []
       }
+      tendencias_semana: {
+        Row: {
+          actividad: number | null
+          nombre: string | null
+          slug: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
-      [_ in never]: never
+      editor_estado_nota: {
+        Args: { p_estado: string; p_nota: string }
+        Returns: undefined
+      }
+      editor_marcar_usuario: {
+        Args: { p_editor?: boolean; p_fuente_verificada?: boolean; p_usuario: string }
+        Returns: undefined
+      }
+      editor_moderar_comentario: {
+        Args: { p_comentario: string; p_destacado?: boolean; p_oculto?: boolean }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

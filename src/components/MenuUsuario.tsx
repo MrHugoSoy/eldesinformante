@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { LogOut, UserRound } from "lucide-react";
+import { Bookmark, LayoutDashboard, LogOut, UserRound } from "lucide-react";
 import { Avatar } from "./Avatar";
 import { useSesion } from "./Sesion";
 
@@ -68,6 +68,22 @@ export function MenuUsuario() {
           >
             <UserRound className="size-4" /> Mi perfil
           </Link>
+          <Link
+            href="/guardados"
+            onClick={() => setAbierto(false)}
+            className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-slate-50"
+          >
+            <Bookmark className="size-4" /> Guardados
+          </Link>
+          {perfil.es_editor && (
+            <Link
+              href="/editor"
+              onClick={() => setAbierto(false)}
+              className="flex items-center gap-2 border-t border-slate-100 px-4 py-2.5 text-sm font-semibold text-acento hover:bg-slate-50"
+            >
+              <LayoutDashboard className="size-4" /> Panel editorial
+            </Link>
+          )}
           <button
             onClick={cerrarSesion}
             className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm text-red-600 hover:bg-red-50"

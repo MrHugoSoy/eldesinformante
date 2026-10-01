@@ -1,10 +1,11 @@
 import Link from "next/link";
-import { Bell, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { Logo } from "./Logo";
 import { MenuMovil } from "./MenuMovil";
 import { MenuSecciones } from "./MenuSecciones";
 import { MenuUsuario } from "./MenuUsuario";
 import { NavegacionPrincipal } from "./NavegacionPrincipal";
+import { Notificaciones } from "./Notificaciones";
 
 export function Header() {
   return (
@@ -38,13 +39,7 @@ export function Header() {
           >
             <Search className="size-5" />
           </Link>
-          {/* Las notificaciones llegan en la Fase 8 */}
-          <button
-            aria-label="Notificaciones"
-            className="rounded-full p-2 hover:bg-white/10"
-          >
-            <Bell className="size-5" />
-          </button>
+          <Notificaciones />
           <MenuUsuario />
         </div>
       </div>

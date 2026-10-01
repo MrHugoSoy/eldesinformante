@@ -2,8 +2,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { MessageCircle, MessageSquare, Star } from "lucide-react";
 import { fechaHora, numeroCorto } from "@/lib/formato";
-import { tendencias } from "@/lib/estatico";
 import type { Noticia, Usuario } from "@/lib/types";
+
+type Tendencia = { slug: string; nombre: string; actividad: number };
 import { Avatar } from "./Avatar";
 import { EtiquetaCategoria } from "./EtiquetaCategoria";
 import { NombreUsuario } from "./NombreUsuario";
@@ -112,24 +113,29 @@ function QueOpinas() {
   );
 }
 
-function Tendencias() {
+function Tendencias({ tendencias }: { tendencias: Tendencia[] }) {
   return (
     <TarjetaLateral titulo="Tendencias en la comunidad">
-      <ol className="flex flex-col gap-2.5 text-sm">
-        {tendencias.map((t, i) => (
-          <li key={t.hashtag} className="flex items-center gap-3">
-            <span className="w-3 text-slate-500">{i + 1}</span>
-            <Link
-              // "PlanDeSeguridad" → busca "Plan De Seguridad"
-              href={`/buscar?q=${encodeURIComponent(t.hashtag.replace(/(\p{Ll})(\p{Lu})/gu, "$1 $2"))}`}
-              className="flex-1 font-medium text-acento hover:underline"
-            >
-              #{t.hashtag}
-            </Link>
-            <span className="text-xs text-slate-500">{numeroCorto(t.menciones)}</span>
-          </li>
-        ))}
-      </ol>
+      {tendencias.length === 0 ? (
+        <p className="text-sm text-slate-500">Sin actividad esta semana todavía.</p>
+      ) : (
+        <ol className="flex flex-col gap-2.5 text-sm">
+          {tendencias.map((t, i) => (
+            <li key={t.slug} className="flex items-center gap-3">
+              <span className="w-3 text-slate-500">{i + 1}</span>
+              <Link
+                href={`/seccion/${t.slug}`}
+                className="flex-1 font-medium text-acento hover:underline"
+              >
+                #{t.nombre}
+              </Link>
+              <span className="text-xs text-slate-500" title="Calificaciones, notas, comentarios y likes en 7 días">
+                {numeroCorto(t.actividad)} interacciones
+              </span>
+            </li>
+          ))}
+        </ol>
+      )}
     </TarjetaLateral>
   );
 }
@@ -138,10 +144,12 @@ export function SidebarDerecho({
   enPortada,
   ranking,
   destacados,
+  tendencias,
 }: {
   enPortada: Noticia[];
   ranking: Usuario[];
   destacados: Usuario[];
+  tendencias: Tendencia[];
 }) {
   return (
     <aside className="flex flex-col gap-4">
@@ -150,7 +158,7 @@ export function SidebarDerecho({
       <Ranking ranking={ranking} />
       <UsuariosDestacados usuarios={destacados} />
       <QueOpinas />
-      <Tendencias />
+      <Tendencias tendencias={tendencias} />
     </aside>
   );
 }

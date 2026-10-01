@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { House, Newspaper, Plus, Search, Star, UserRound } from "lucide-react";
+import { Bookmark, House, Newspaper, Plus, Search, Star, UserRound } from "lucide-react";
 import { secciones } from "@/lib/estatico";
 import { esActivo } from "./MenuSecciones";
 
@@ -10,6 +10,7 @@ const enlaces = [
   { href: "/", texto: "Inicio", icono: House },
   { href: "/noticias", texto: "Noticias", icono: Newspaper },
   { href: "/buscar", texto: "Buscar", icono: Search },
+  { href: "/guardados", texto: "Guardados", icono: Bookmark },
   { href: "/perfil", texto: "Mi perfil", icono: UserRound },
 ];
 
@@ -64,9 +65,12 @@ export function NavegacionPrincipal() {
           Verifica, comenta, comparte y gana reputación por tus aportes a la
           comunidad.
         </p>
-        <button className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-lg bg-acento py-2 text-sm font-semibold text-white hover:bg-acento-oscuro">
-          <Plus className="size-4" /> Crear nota
-        </button>
+        <Link
+          href="/noticias"
+          className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-lg bg-acento py-2 text-sm font-semibold text-white hover:bg-acento-oscuro"
+        >
+          <Plus className="size-4" /> Aportar una nota
+        </Link>
       </div>
     </div>
   );

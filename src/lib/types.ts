@@ -73,18 +73,16 @@ export type NoticiaCompleta = Noticia & {
 
 export type Comentario = {
   id: string;
-  autor: string;
+  autor: Pick<Usuario, "id" | "nombre" | "usuario" | "fuenteVerificada">;
   texto: string;
   creadoEn: string;
+  editadoEn: string | null;
+  /** destacado por el equipo editorial como constructivo (+1) */
+  destacado: boolean;
 };
 
 /** Credibilidad agregada de un autor o un medio. */
 export type CredibilidadAgregada = {
   calificacion: Calificacion | null;
   totalNoticias: number;
-};
-
-export type Tendencia = {
-  hashtag: string;
-  menciones: number;
 };

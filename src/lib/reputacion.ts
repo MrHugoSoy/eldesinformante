@@ -10,7 +10,7 @@ export const textoMotivo: Record<string, string> = {
   voto_util_recibido: "Una de tus notas recibió un voto “útil”",
   nota_verificada: "Tu nota fue verificada por la comunidad",
   fuente_verificada: "El equipo editorial te verificó como fuente",
-  comentario_constructivo: "Comentario constructivo",
+  comentario_constructivo: "La redacción destacó tu comentario",
   like_recibido: "Like recibido en tus aportes",
   nota_util: "Nota útil",
   ajuste: "Ajuste de puntos",

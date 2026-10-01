@@ -59,7 +59,7 @@ export function NoticiaDestacada({ noticia }: { noticia: Noticia }) {
 
       <BarraCredibilidad calificacion={noticia.calificacion} enlaceVerificar={`/noticia/${noticia.slug}#verificar`} />
       <NotasComunidad notas={noticia.notas} slug={noticia.slug} />
-      <AccionesNoticia likes={noticia.likes} comentarios={noticia.comentarios} />
+      <AccionesNoticia noticiaId={noticia.id} slug={noticia.slug} titulo={noticia.titulo} likes={noticia.likes} comentarios={noticia.comentarios} />
     </article>
   );
 }
@@ -99,7 +99,7 @@ export function TarjetaNoticia({ noticia }: { noticia: Noticia }) {
 
       <BarraCredibilidad calificacion={noticia.calificacion} enlaceVerificar={`/noticia/${noticia.slug}#verificar`} />
       <NotasComunidad notas={noticia.notas} slug={noticia.slug} />
-      <AccionesNoticia likes={noticia.likes} comentarios={noticia.comentarios} />
+      <AccionesNoticia noticiaId={noticia.id} slug={noticia.slug} titulo={noticia.titulo} likes={noticia.likes} comentarios={noticia.comentarios} />
     </article>
   );
 }

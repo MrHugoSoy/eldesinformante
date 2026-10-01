@@ -2,16 +2,15 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ExternalLink, MessageSquare, Users } from "lucide-react";
+import { ExternalLink, Users } from "lucide-react";
 import { AccionesNoticia } from "@/components/AccionesNoticia";
-import { Avatar } from "@/components/Avatar";
 import { BarraCredibilidad } from "@/components/BarraCredibilidad";
 import { Byline } from "@/components/Byline";
 import { EtiquetaCategoria } from "@/components/EtiquetaCategoria";
 import { PanelCalificar } from "@/components/interaccion/PanelCalificar";
+import { SeccionComentarios } from "@/components/interaccion/SeccionComentarios";
 import { NotasComunidad } from "@/components/NotasComunidad";
 import { obtenerNoticia } from "@/lib/datos";
-import { fechaHora } from "@/lib/formato";
 
 export const revalidate = 60;
 
@@ -109,32 +108,14 @@ export default async function PaginaNoticia({ params }: PageProps<"/noticia/[slu
         <div className="border-t border-slate-200 sm:px-4 sm:py-2">
           <NotasComunidad notas={noticia.notas} slug={noticia.slug} noticiaId={noticia.id} />
         </div>
-        <AccionesNoticia likes={noticia.likes} comentarios={noticia.comentarios} />
+        <AccionesNoticia noticiaId={noticia.id} slug={noticia.slug} titulo={noticia.titulo} likes={noticia.likes} comentarios={noticia.comentarios} />
       </article>
 
-      <section className="mt-5 rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:p-8">
-        <h2 className="flex items-center gap-2 font-serif text-xl font-semibold text-slate-900">
-          <MessageSquare className="size-5" /> Comentarios ({noticia.listaComentarios.length})
-        </h2>
-        {noticia.listaComentarios.length === 0 ? (
-          <p className="mt-3 text-sm text-slate-500">Todavía no hay comentarios.</p>
-        ) : (
-          <ul className="mt-4 flex flex-col gap-4">
-            {noticia.listaComentarios.map((c) => (
-              <li key={c.id} className="flex gap-3">
-                <Avatar nombre={c.autor} tamano="sm" />
-                <div className="text-sm">
-                  <p>
-                    <span className="font-semibold text-slate-800">{c.autor}</span>{" "}
-                    <span className="text-xs text-slate-500">{fechaHora(c.creadoEn)}</span>
-                  </p>
-                  <p className="mt-0.5 text-slate-700">{c.texto}</p>
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+      <SeccionComentarios
+        comentarios={noticia.listaComentarios}
+        noticiaId={noticia.id}
+        slug={noticia.slug}
+      />
     </main>
   );
 }
