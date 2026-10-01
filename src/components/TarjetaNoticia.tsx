@@ -4,6 +4,7 @@ import type { Noticia } from "@/lib/types";
 import { AccionesNoticia } from "./AccionesNoticia";
 import { Byline } from "./Byline";
 import { EtiquetaCategoria } from "./EtiquetaCategoria";
+import { EtiquetaRed } from "./EtiquetaRed";
 import { Foto } from "./Foto";
 import { SelloCredibilidad } from "./SelloCredibilidad";
 
@@ -66,7 +67,11 @@ export function NoticiaDestacada({ noticia }: { noticia: Noticia }) {
 
         <div className="relative p-5 sm:p-7">
           <div className="flex flex-wrap items-center gap-2">
-            <EtiquetaCategoria categoria={noticia.categoria} />
+            {noticia.red ? (
+              <EtiquetaRed red={noticia.red} />
+            ) : (
+              <EtiquetaCategoria categoria={noticia.categoria} />
+            )}
             <SelloCredibilidad calificacion={noticia.calificacion} />
           </div>
           <h1 className="mt-3 max-w-2xl font-serif text-3xl font-bold leading-tight text-white sm:text-4xl">
@@ -113,7 +118,11 @@ export function TarjetaNoticia({ noticia }: { noticia: Noticia }) {
         </Link>
         <div className="flex min-w-0 flex-col gap-1.5 sm:gap-2">
           <div className="flex flex-wrap items-center gap-1.5">
-            <EtiquetaCategoria categoria={noticia.categoria} />
+            {noticia.red ? (
+              <EtiquetaRed red={noticia.red} />
+            ) : (
+              <EtiquetaCategoria categoria={noticia.categoria} />
+            )}
             <span className="sm:hidden">
               <SelloCredibilidad calificacion={noticia.calificacion} />
             </span>

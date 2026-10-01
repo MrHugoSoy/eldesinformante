@@ -14,6 +14,7 @@ export const secciones: Categoria[] = [
   { slug: "tecnologia", nombre: "Tecnología" },
   { slug: "ciencia", nombre: "Ciencia" },
   { slug: "deportes", nombre: "Deportes" },
+  { slug: "redes", nombre: "Redes" },
 ];
 
 export const menuPrincipal: { href: string; nombre: string }[] = [

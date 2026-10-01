@@ -72,7 +72,7 @@ function Tabla({ filas, base }: { filas: FilaRanking[]; base: "/medio" | "/autor
 }
 
 export default async function PaginaMedios() {
-  const { medios, autores } = await obtenerRankingCredibilidad();
+  const { medios, cuentas, autores } = await obtenerRankingCredibilidad();
 
   return (
     <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-5 px-4 py-6 sm:py-8">
@@ -94,6 +94,15 @@ export default async function PaginaMedios() {
         </h2>
         <Tabla filas={medios} base="/medio" />
       </section>
+
+      {cuentas.length > 0 && (
+        <section id="cuentas" className="scroll-mt-20 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+          <h2 className="border-b border-slate-100 p-4 font-serif text-xl font-semibold text-slate-900">
+            Cuentas de redes sociales
+          </h2>
+          <Tabla filas={cuentas} base="/medio" />
+        </section>
+      )}
 
       <section id="autores" className="scroll-mt-20 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
         <h2 className="border-b border-slate-100 p-4 font-serif text-xl font-semibold text-slate-900">

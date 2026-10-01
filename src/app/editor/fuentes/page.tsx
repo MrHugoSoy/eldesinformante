@@ -16,7 +16,7 @@ export default async function FuentesEditor() {
         .from("fuentes_rss")
         .select("id, url, activa, ultima_revision, ultimo_resultado, medio:medios ( nombre ), categoria:categorias ( nombre )")
         .order("creado_en"),
-      supabase.from("medios").select("id, nombre").order("nombre"),
+      supabase.from("medios").select("id, nombre").eq("tipo", "medio").order("nombre"),
       supabase.from("categorias").select("slug, nombre").order("orden"),
       supabase
         .from("noticias")

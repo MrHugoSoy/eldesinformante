@@ -29,12 +29,13 @@ export default async function PaginaMedio({ params }: PageProps<"/medio/[id]">) 
   ]);
   if (!datos) notFound();
   const { medio, credibilidad } = datos;
+  const esCuenta = medio.tipo === "cuenta";
 
   return (
     <ListaNoticias
       encabezado={
         <EncabezadoPagina
-          antetitulo="Medio"
+          antetitulo={esCuenta ? "Cuenta de red social" : "Medio"}
           titulo={
             <span className="flex items-center gap-3">
               <LogoMedio medio={medio} tamano="lg" />
@@ -43,7 +44,11 @@ export default async function PaginaMedio({ params }: PageProps<"/medio/[id]">) 
           }
         >
           <div className="mt-2 flex flex-wrap items-center gap-2 text-sm">
-            {medio.verificado ? (
+            {esCuenta ? (
+              <span className="text-slate-500">
+                Aquí se califican sus publicaciones que se volvieron virales.
+              </span>
+            ) : medio.verificado ? (
               <span className="flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 font-semibold text-emerald-700">
                 <BadgeCheck className="size-4" /> Medio verificado
               </span>
@@ -54,12 +59,19 @@ export default async function PaginaMedio({ params }: PageProps<"/medio/[id]">) 
             )}
             {medio.dominio && <span className="text-slate-500">{medio.dominio}</span>}
           </div>
-          <ResumenCredibilidad credibilidad={credibilidad} sujeto="de este medio" />
+          <ResumenCredibilidad
+            credibilidad={credibilidad}
+            sujeto={esCuenta ? "de esta cuenta" : "de este medio"}
+          />
         </EncabezadoPagina>
       }
       noticias={noticias}
       mas={{ medioId: id }}
-      vacio="Este medio todavía no tiene noticias publicadas."
+      vacio={
+        esCuenta
+          ? "Esta cuenta todavía no tiene publicaciones aquí."
+          : "Este medio todavía no tiene noticias publicadas."
+      }
     />
   );
 }

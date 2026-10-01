@@ -5,6 +5,7 @@ import { Foto } from "@/components/Foto";
 import { useRouter } from "next/navigation";
 import { Eye, ImageUp, Pencil, Trash2 } from "lucide-react";
 import { Estrellas } from "@/components/interaccion/Estrellas";
+import { REDES } from "@/lib/redes";
 import { clienteNavegador } from "@/lib/supabase/navegador";
 import { eliminarNoticia, guardarNoticia, type DatosNoticia } from "../acciones";
 
@@ -79,6 +80,7 @@ export function FormNoticia({
   }
 
   const parrafos = d.contenido.split(/\n\s*\n/).filter(Boolean);
+  const esDeRedes = Boolean(d.red);
 
   return (
     <div className="flex flex-col gap-5">
@@ -128,46 +130,92 @@ export function FormNoticia({
         </article>
       ) : (
         <div className="flex flex-col gap-4 rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+          <label className="flex items-start gap-2 rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700">
+            <input
+              type="checkbox"
+              checked={esDeRedes}
+              onChange={(e) => set("red", e.target.checked ? "x" : "")}
+              className="mt-0.5 size-4"
+            />
+            <span>
+              <strong>Es una publicación de redes sociales.</strong> Va a la sección “Redes”. Solo
+              publicaciones ya virales y de cuentas públicas; nunca de personas privadas.
+            </span>
+          </label>
+
+          {esDeRedes && (
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label htmlFor="red" className={etiqueta}>Red social</label>
+                <select id="red" value={d.red} onChange={(e) => set("red", e.target.value)} className={campo}>
+                  {Object.entries(REDES).map(([clave, r]) => (
+                    <option key={clave} value={clave}>{r.nombre}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label htmlFor="cuenta" className={etiqueta}>
+                  Cuenta que lo publicó (vacío si no se sabe, p. ej. una cadena)
+                </label>
+                <input id="cuenta" value={d.cuenta} onChange={(e) => set("cuenta", e.target.value)} placeholder="@usuario" maxLength={60} className={campo} />
+              </div>
+            </div>
+          )}
+
           <div>
-            <label htmlFor="titulo" className={etiqueta}>Título</label>
+            <label htmlFor="titulo" className={etiqueta}>
+              {esDeRedes ? "Qué afirma la publicación (título)" : "Título"}
+            </label>
             <input id="titulo" value={d.titulo} onChange={(e) => set("titulo", e.target.value)} maxLength={200} className={campo} />
           </div>
           <div>
-            <label htmlFor="resumen" className={etiqueta}>Resumen (se ve en la portada)</label>
+            <label htmlFor="resumen" className={etiqueta}>
+              {esDeRedes ? "Descripción breve (se ve en la portada)" : "Resumen (se ve en la portada)"}
+            </label>
             <textarea id="resumen" value={d.resumen} onChange={(e) => set("resumen", e.target.value)} maxLength={500} rows={2} className={campo} />
           </div>
           <div>
-            <label htmlFor="contenido" className={etiqueta}>Texto completo (separa párrafos con una línea en blanco)</label>
-            <textarea id="contenido" value={d.contenido} onChange={(e) => set("contenido", e.target.value)} rows={10} className={campo} />
+            <label htmlFor="contenido" className={etiqueta}>
+              {esDeRedes
+                ? "Lo que se sabe (opcional; separa párrafos con una línea en blanco)"
+                : "Texto completo (separa párrafos con una línea en blanco)"}
+            </label>
+            <textarea id="contenido" value={d.contenido} onChange={(e) => set("contenido", e.target.value)} rows={esDeRedes ? 5 : 10} className={campo} />
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
-            <div>
-              <label htmlFor="categoria" className={etiqueta}>Sección</label>
-              <select id="categoria" value={d.categoria} onChange={(e) => set("categoria", e.target.value)} className={campo}>
-                <option value="">Elige una sección…</option>
-                {categorias.map((c) => <option key={c.valor} value={c.valor}>{c.texto}</option>)}
-              </select>
-            </div>
-            <div>
-              <label htmlFor="autor" className={etiqueta}>Autor</label>
-              <select id="autor" value={d.autorId} onChange={(e) => set("autorId", e.target.value)} className={campo}>
-                <option value="">Sin autor</option>
-                {autores.map((a) => <option key={a.valor} value={a.valor}>{a.texto}</option>)}
-              </select>
-            </div>
-            <div>
-              <label htmlFor="ciudad" className={etiqueta}>Ciudad</label>
-              <input id="ciudad" value={d.ciudad} onChange={(e) => set("ciudad", e.target.value)} className={campo} />
-            </div>
-            <div>
-              <label htmlFor="original" className={etiqueta}>Enlace a la publicación original (opcional)</label>
+            {!esDeRedes && (
+              <>
+                <div>
+                  <label htmlFor="categoria" className={etiqueta}>Sección</label>
+                  <select id="categoria" value={d.categoria} onChange={(e) => set("categoria", e.target.value)} className={campo}>
+                    <option value="">Elige una sección…</option>
+                    {categorias.filter((c) => c.valor !== "redes").map((c) => <option key={c.valor} value={c.valor}>{c.texto}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label htmlFor="autor" className={etiqueta}>Autor</label>
+                  <select id="autor" value={d.autorId} onChange={(e) => set("autorId", e.target.value)} className={campo}>
+                    <option value="">Sin autor</option>
+                    {autores.map((a) => <option key={a.valor} value={a.valor}>{a.texto}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label htmlFor="ciudad" className={etiqueta}>Ciudad</label>
+                  <input id="ciudad" value={d.ciudad} onChange={(e) => set("ciudad", e.target.value)} className={campo} />
+                </div>
+              </>
+            )}
+            <div className={esDeRedes ? "sm:col-span-2" : ""}>
+              <label htmlFor="original" className={etiqueta}>
+                {esDeRedes ? "Enlace a la publicación" : "Enlace a la publicación original (opcional)"}
+              </label>
               <input id="original" type="url" value={d.urlOriginal} onChange={(e) => set("urlOriginal", e.target.value)} placeholder="https://…" className={campo} />
             </div>
           </div>
 
           <div>
-            <span className={etiqueta}>Imagen</span>
+            <span className={etiqueta}>{esDeRedes ? "Captura de la publicación" : "Imagen"}</span>
             <div className="flex flex-wrap items-center gap-3">
               {d.imagenUrl && (
                 <div className="relative aspect-[16/10] w-40 overflow-hidden rounded-lg">

@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { crearSlug, editorActual } from "@/lib/editor";
+import { esRed, nombreCuenta } from "@/lib/redes";
 
 export type Resultado = { ok?: boolean; error?: string; id?: string; slug?: string };
 
@@ -34,6 +35,10 @@ export type DatosNoticia = {
   ciudad: string;
   estado: "borrador" | "publicada";
   destacada: boolean;
+  /** Red social de origen ("" = noticia normal). Con red, la sección es siempre "redes". */
+  red: string;
+  /** Cuenta que lo publicó, p. ej. "@usuario" ("" = sin cuenta, como una cadena de WhatsApp) */
+  cuenta: string;
   /** Calificación editorial opcional (1-5 en cada eje) */
   calificacion?: { fuente: number; contenido: number; contexto: number } | null;
 };
@@ -57,8 +62,39 @@ export async function guardarNoticia(d: DatosNoticia): Promise<Resultado> {
   const resumen = d.resumen.trim();
   if (titulo.length < 5 || titulo.length > 200) return { error: "El título debe tener de 5 a 200 caracteres." };
   if (resumen.length < 1 || resumen.length > 500) return { error: "El resumen debe tener de 1 a 500 caracteres." };
-  if (!d.categoria) return { error: "Elige una sección." };
+  const red = d.red ? (esRed(d.red) ? d.red : undefined) : null;
+  if (red === undefined) return { error: "Elige una red social válida." };
+  if (!red && !d.categoria) return { error: "Elige una sección." };
   if (!urlValida(d.imagenUrl) || !urlValida(d.urlOriginal)) return { error: "Revisa los enlaces: deben empezar con https://" };
+
+  // Publicación de redes: la cuenta se guarda como fuente de tipo "cuenta" (se crea si no existe)
+  let autorId: string | null = d.autorId || null;
+  if (red) {
+    autorId = null;
+    const cuenta = d.cuenta.trim().replace(/\s+/g, "");
+    if (cuenta) {
+      if (cuenta.length > 60) return { error: "El nombre de la cuenta es demasiado largo." };
+      const usuario = cuenta.startsWith("@") ? cuenta : `@${cuenta}`;
+      const nombre = nombreCuenta(usuario, red);
+      const { data: medioActual } = await supabase
+        .from("medios").select("id").eq("tipo", "cuenta").eq("nombre", nombre).limit(1).maybeSingle();
+      let medioId = medioActual?.id;
+      if (!medioId) {
+        const { data: creado } = await supabase
+          .from("medios").insert({ nombre, tipo: "cuenta" }).select("id").single();
+        medioId = creado?.id;
+      }
+      if (!medioId) return { error: "No pudimos registrar la cuenta." };
+      const { data: autorActual } = await supabase
+        .from("autores").select("id").eq("medio_id", medioId).limit(1).maybeSingle();
+      autorId = autorActual?.id ?? null;
+      if (!autorId) {
+        const { data: creado } = await supabase
+          .from("autores").insert({ nombre: usuario, medio_id: medioId }).select("id").single();
+        autorId = creado?.id ?? null;
+      }
+    }
+  }
 
   const campos = {
     titulo,
@@ -66,11 +102,12 @@ export async function guardarNoticia(d: DatosNoticia): Promise<Resultado> {
     contenido: d.contenido.trim() || null,
     imagen_url: d.imagenUrl.trim() || null,
     url_original: d.urlOriginal.trim() || null,
-    categoria_slug: d.categoria,
-    autor_id: d.autorId || null,
-    ciudad: d.ciudad.trim() || null,
+    categoria_slug: red ? "redes" : d.categoria,
+    autor_id: autorId,
+    ciudad: red ? null : d.ciudad.trim() || null,
     estado: d.estado,
     destacada: d.destacada,
+    red,
   };
 
   let id = d.id;

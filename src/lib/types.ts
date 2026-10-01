@@ -1,4 +1,6 @@
-// Tipos del dominio. Tienen la misma forma que tendrán las tablas de Supabase (Fase 3).
+// Tipos del dominio que usan los componentes (los llena src/lib/datos.ts desde Supabase).
+
+import type { Red } from "./redes";
 
 export type Categoria = {
   slug: string;
@@ -56,6 +58,8 @@ export type Noticia = {
   imagen: string;
   categoria: Categoria;
   autor: Autor;
+  /** red social de origen; null si es una noticia normal */
+  red: Red | null;
   ciudad: string;
   publicadoEn: string;
   /** null mientras nadie la haya calificado */

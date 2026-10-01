@@ -19,8 +19,13 @@ function indice(c: Cred | undefined) {
 export default async function MediosEditor() {
   const { supabase } = await exigirEditor("/editor/medios");
   const [{ data: medios }, { data: autores }, { data: credMedios }, { data: credAutores }] = await Promise.all([
-    supabase.from("medios").select("id, nombre, dominio, verificado, logo_url").order("nombre"),
-    supabase.from("autores").select("id, nombre, medio_id, medio:medios ( nombre )").order("nombre"),
+    // Las cuentas de redes sociales se crean solas al agregar una publicación; aquí van solo medios
+    supabase
+      .from("medios")
+      .select("id, nombre, dominio, verificado, logo_url")
+      .eq("tipo", "medio")
+      .order("nombre"),
+    supabase.from("autores").select("id, nombre, medio_id, medio:medios ( nombre, tipo )").order("nombre"),
     supabase.from("credibilidad_medios").select("*"),
     supabase.from("credibilidad_autores").select("*"),
   ]);
@@ -33,7 +38,9 @@ export default async function MediosEditor() {
     indice: indice(porMedio.get(m.id)),
     totalNoticias: porMedio.get(m.id)?.total_noticias ?? 0,
   }));
-  const filasAutores: FilaAutor[] = (autores ?? []).map((a) => ({
+  const filasAutores: FilaAutor[] = (autores ?? [])
+    .filter((a) => a.medio?.tipo !== "cuenta")
+    .map((a) => ({
     id: a.id,
     nombre: a.nombre,
     medioId: a.medio_id,

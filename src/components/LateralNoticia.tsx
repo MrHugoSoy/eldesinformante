@@ -51,7 +51,8 @@ function Ficha({
 export async function LateralNoticia({ noticia }: { noticia: NoticiaCompleta }) {
   const { autor } = noticia;
   const [datosAutor, datosMedio, deLaSeccion] = await Promise.all([
-    autor.id ? obtenerAutor(autor.id) : null,
+    // En publicaciones de redes el "autor" es la misma cuenta: basta con la ficha de la cuenta
+    autor.id && !noticia.red ? obtenerAutor(autor.id) : null,
     autor.medio.id ? obtenerMedio(autor.medio.id) : null,
     obtenerFeed({ categoria: noticia.categoria.slug, limite: 5 }),
   ]);
@@ -72,7 +73,7 @@ export async function LateralNoticia({ noticia }: { noticia: NoticiaCompleta }) 
             )}
             {datosMedio && (
               <Ficha
-                etiqueta="Medio"
+                etiqueta={noticia.red ? "Cuenta" : "Medio"}
                 nombre={datosMedio.medio.nombre}
                 href={`/medio/${datosMedio.medio.id}`}
                 verificado={datosMedio.medio.verificado}

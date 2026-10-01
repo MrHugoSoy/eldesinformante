@@ -23,6 +23,17 @@ export default async function EditarNoticia({ params }: PageProps<"/editor/notic
   ]);
   if (!n) notFound();
 
+  // En publicaciones de redes, el "autor" es la cuenta (@usuario)
+  let cuenta = "";
+  if (n.red && n.autor_id) {
+    const { data: autor } = await supabase
+      .from("autores")
+      .select("nombre")
+      .eq("id", n.autor_id)
+      .maybeSingle();
+    cuenta = autor?.nombre ?? "";
+  }
+
   return (
     <div className="flex flex-col gap-4">
       <h1 className="font-serif text-3xl font-bold text-slate-900">Editar noticia</h1>
@@ -41,6 +52,8 @@ export default async function EditarNoticia({ params }: PageProps<"/editor/notic
           ciudad: n.ciudad ?? "",
           estado: n.estado === "publicada" ? "publicada" : "borrador",
           destacada: n.destacada,
+          red: n.red ?? "",
+          cuenta,
         }}
         categorias={opciones.categorias}
         autores={opciones.autores}

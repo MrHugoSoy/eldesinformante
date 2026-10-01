@@ -7,12 +7,14 @@ import { AccionesNoticia } from "@/components/AccionesNoticia";
 import { BarraCredibilidad } from "@/components/BarraCredibilidad";
 import { Byline } from "@/components/Byline";
 import { EtiquetaCategoria } from "@/components/EtiquetaCategoria";
+import { EtiquetaRed } from "@/components/EtiquetaRed";
 import { PanelCalificar } from "@/components/interaccion/PanelCalificar";
 import { SeccionComentarios } from "@/components/interaccion/SeccionComentarios";
 import { LateralNoticia } from "@/components/LateralNoticia";
 import { SelloCredibilidad } from "@/components/SelloCredibilidad";
 import { NotasComunidad } from "@/components/NotasComunidad";
 import { obtenerNoticia } from "@/lib/datos";
+import { REDES } from "@/lib/redes";
 
 export const revalidate = 60;
 
@@ -57,6 +59,7 @@ export default async function PaginaNoticia({ params }: PageProps<"/noticia/[slu
             <Link href={`/seccion/${noticia.categoria.slug}`}>
               <EtiquetaCategoria categoria={noticia.categoria} />
             </Link>
+            {noticia.red && <EtiquetaRed red={noticia.red} />}
             <SelloCredibilidad calificacion={noticia.calificacion} />
           </div>
           <h1 className="mt-3 font-serif text-3xl font-bold leading-tight text-slate-900 sm:text-4xl">
@@ -69,14 +72,15 @@ export default async function PaginaNoticia({ params }: PageProps<"/noticia/[slu
         </header>
 
         {noticia.imagen && (
-          <div className="relative aspect-[16/9]">
+          <div className={`relative ${noticia.red ? "aspect-[4/3] bg-slate-100" : "aspect-[16/9]"}`}>
+            {/* Las capturas de redes suelen ser verticales: se muestran completas, sin recortar */}
             <Foto
               src={noticia.imagen}
-              alt={noticia.titulo}
+              alt={noticia.red ? `Captura de la publicación: ${noticia.titulo}` : noticia.titulo}
               fill
               preload
               sizes="(min-width: 1024px) 800px, 100vw"
-              className="object-cover"
+              className={noticia.red ? "object-contain" : "object-cover"}
             />
           </div>
         )}
@@ -101,7 +105,25 @@ export default async function PaginaNoticia({ params }: PageProps<"/noticia/[slu
           {parrafos.length === 0 && !noticia.urlOriginal && (
             <p className="text-slate-500">Esta noticia todavía no tiene texto completo.</p>
           )}
+          {noticia.urlOriginal && noticia.red && (
+            <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-base">
+              <p className="text-slate-700">
+                Esta publicación circula en <strong>{REDES[noticia.red].nombre}</strong>. Aquí se
+                califica qué tan creíble es; no la publicó El Desinformante.
+              </p>
+              <a
+                href={noticia.urlOriginal}
+                target="_blank"
+                rel="noopener noreferrer nofollow"
+                className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-acento px-4 py-2 text-sm font-semibold text-white hover:bg-acento-oscuro"
+              >
+                Ver la publicación original en {REDES[noticia.red].nombre}
+                <ExternalLink className="size-4" />
+              </a>
+            </div>
+          )}
           {noticia.urlOriginal &&
+            !noticia.red &&
             (parrafos.length === 0 ? (
               // Nota de un medio: aquí solo va el resumen; el texto completo está en su sitio
               <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-base">

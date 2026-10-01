@@ -1,6 +1,7 @@
 // Consultas a Supabase para la portada. Convierte las filas de la base de datos
 // a los tipos que usan los componentes (src/lib/types.ts).
 
+import { esRed, REDES } from "./redes";
 import { clientePublico } from "./supabase/publico";
 import type {
   Autor,
@@ -13,7 +14,7 @@ import type {
 } from "./types";
 
 const SELECT_NOTICIA = `
-  id, slug, titulo, resumen, imagen_url, ciudad, publicado_en, destacada,
+  id, slug, titulo, resumen, imagen_url, ciudad, publicado_en, destacada, red,
   cred_fuente, cred_contenido, cred_contexto, total_calificaciones, total_likes, total_comentarios,
   categoria:categorias ( slug, nombre ),
   autor:autores ( id, nombre, medio:medios ( id, nombre, dominio, verificado, logo_url ) ),
@@ -71,6 +72,7 @@ type FilaNoticia = {
   ciudad: string | null;
   publicado_en: string | null;
   destacada: boolean | null;
+  red: string | null;
   cred_fuente: number | null;
   cred_contenido: number | null;
   cred_contexto: number | null;
@@ -102,6 +104,22 @@ function aNoticia(f: FilaNoticia): Noticia {
       noUtilPara: n.votos_no_utiles,
     }));
 
+  const red = esRed(f.red) ? f.red : null;
+  // Una publicación de redes sin cuenta (p. ej. una cadena de WhatsApp) no es de la redacción
+  const sinAutor: Autor = red
+    ? {
+        id: "",
+        nombre: "Origen desconocido",
+        medio: {
+          id: "",
+          nombre: red === "whatsapp" ? "Cadena de WhatsApp" : `Publicación de ${REDES[red].nombre}`,
+          dominio: null,
+          verificado: false,
+          logo_url: null,
+        },
+      }
+    : autorDesconocido;
+
   return {
     id: f.id!,
     slug: f.slug!,
@@ -109,9 +127,8 @@ function aNoticia(f: FilaNoticia): Noticia {
     resumen: f.resumen ?? "",
     imagen: f.imagen_url ?? "",
     categoria: f.categoria ?? { slug: "", nombre: "General" },
-    autor: f.autor
-      ? { ...f.autor, medio: f.autor.medio ?? autorDesconocido.medio }
-      : autorDesconocido,
+    autor: f.autor ? { ...f.autor, medio: f.autor.medio ?? sinAutor.medio } : sinAutor,
+    red,
     ciudad: f.ciudad ?? "",
     publicadoEn: f.publicado_en!,
     calificacion:
@@ -289,7 +306,7 @@ export async function obtenerMedio(id: string) {
   const [{ data: medio, error }, { data: cred }] = await Promise.all([
     supabase
       .from("medios")
-      .select("id, nombre, dominio, verificado, logo_url")
+      .select("id, nombre, dominio, verificado, logo_url, tipo")
       .eq("id", id)
       .maybeSingle(),
     supabase.from("credibilidad_medios").select("*").eq("medio_id", id).maybeSingle(),
@@ -316,12 +333,13 @@ export type FilaRanking = {
 /** Medios y autores con su credibilidad, del índice más alto al más bajo. */
 export async function obtenerRankingCredibilidad(): Promise<{
   medios: FilaRanking[];
+  cuentas: FilaRanking[];
   autores: FilaRanking[];
 }> {
   const supabase = clientePublico();
   const [medios, autores, credMedios, credAutores] = await Promise.all([
-    supabase.from("medios").select("id, nombre, dominio, verificado, logo_url"),
-    supabase.from("autores").select("id, nombre, medio:medios ( nombre, verificado )"),
+    supabase.from("medios").select("id, nombre, dominio, verificado, logo_url, tipo"),
+    supabase.from("autores").select("id, nombre, medio:medios ( nombre, verificado, tipo )"),
     supabase.from("credibilidad_medios").select("*"),
     supabase.from("credibilidad_autores").select("*"),
   ]);
@@ -342,20 +360,27 @@ export async function obtenerRankingCredibilidad(): Promise<{
       return eb - ea || indice(b) - indice(a) || a.nombre.localeCompare(b.nombre, "es");
     });
 
+  const filasDe = (tipo: string) =>
+    ordenar(
+      (medios.data ?? [])
+        .filter((m) => m.tipo === tipo)
+        .map((m) => ({
+          id: m.id,
+          nombre: m.nombre,
+          subtitulo: m.dominio,
+          verificado: m.verificado,
+          logo: { nombre: m.nombre, dominio: m.dominio, logo_url: m.logo_url },
+          credibilidad: aCredibilidad(porMedio.get(m.id) ?? null),
+        })),
+    );
+
   return {
-    medios: ordenar(
-      (medios.data ?? []).map((m) => ({
-        id: m.id,
-        nombre: m.nombre,
-        subtitulo: m.dominio,
-        verificado: m.verificado,
-        logo: { nombre: m.nombre, dominio: m.dominio, logo_url: m.logo_url },
-        credibilidad: aCredibilidad(porMedio.get(m.id) ?? null),
-      })),
-    ),
+    medios: filasDe("medio"),
+    cuentas: filasDe("cuenta"),
     autores: ordenar(
       (autores.data ?? [])
-        .filter((a) => porAutor.has(a.id))
+        // Los "autores" de una cuenta de red social son la cuenta misma: ya salen en Cuentas
+        .filter((a) => porAutor.has(a.id) && a.medio?.tipo !== "cuenta")
         .map((a) => ({
           id: a.id,
           nombre: a.nombre,

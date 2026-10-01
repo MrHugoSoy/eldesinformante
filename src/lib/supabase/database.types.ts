@@ -396,6 +396,7 @@ export type Database = {
           id: string
           logo_url: string | null
           nombre: string
+          tipo: string
           verificado: boolean
         }
         Insert: {
@@ -404,6 +405,7 @@ export type Database = {
           id?: string
           logo_url?: string | null
           nombre: string
+          tipo?: string
           verificado?: boolean
         }
         Update: {
@@ -412,6 +414,7 @@ export type Database = {
           id?: string
           logo_url?: string | null
           nombre?: string
+          tipo?: string
           verificado?: boolean
         }
         Relationships: []
@@ -551,6 +554,7 @@ export type Database = {
           id: string
           imagen_url: string | null
           publicado_en: string
+          red: string | null
           resumen: string
           slug: string
           titulo: string
@@ -570,6 +574,7 @@ export type Database = {
           id?: string
           imagen_url?: string | null
           publicado_en?: string
+          red?: string | null
           resumen: string
           slug: string
           titulo: string
@@ -589,6 +594,7 @@ export type Database = {
           id?: string
           imagen_url?: string | null
           publicado_en?: string
+          red?: string | null
           resumen?: string
           slug?: string
           titulo?: string
@@ -786,6 +792,7 @@ export type Database = {
           id: string | null
           imagen_url: string | null
           publicado_en: string | null
+          red: string | null
           resumen: string | null
           slug: string | null
           titulo: string | null

@@ -7,6 +7,7 @@ const estilos: Record<string, string> = {
   tecnologia: "bg-violet-600",
   ciencia: "bg-fuchsia-600",
   deportes: "bg-orange-600",
+  redes: "bg-slate-800",
 };
 
 export function EtiquetaCategoria({

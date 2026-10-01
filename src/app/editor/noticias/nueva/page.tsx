@@ -24,6 +24,8 @@ export default async function NuevaNoticia() {
           ciudad: "",
           estado: "borrador",
           destacada: false,
+          red: "",
+          cuenta: "",
         }}
         categorias={categorias}
         autores={autores}

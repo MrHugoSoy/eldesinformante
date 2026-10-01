@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { BadgeCheck, Newspaper, Scale, ShieldCheck, Star, Users } from "lucide-react";
+import { BadgeCheck, Newspaper, Scale, Share2, ShieldCheck, Star, Users } from "lucide-react";
 import { SelloCredibilidad } from "@/components/SelloCredibilidad";
 import { nivelesReputacion, UTILES_PARA_VERIFICAR } from "@/lib/credibilidad";
 import { CORREO_CONTACTO, reglasPuntos } from "@/lib/estatico";
@@ -148,6 +148,32 @@ export default function ComoCalificamos() {
           “útil” contra los “no útil” que han recibido. Las fuentes verificadas por la redacción
           reciben medio punto adicional.
         </p>
+      </Seccion>
+
+      <Seccion icono={Share2} titulo="Publicaciones de redes sociales">
+        <p>
+          En la sección{" "}
+          <Link href="/seccion/redes" className="font-semibold text-acento hover:underline">
+            Redes
+          </Link>{" "}
+          se califican publicaciones que se volvieron virales en X, Facebook, TikTok, Instagram,
+          YouTube o WhatsApp, con los mismos tres ejes y las mismas notas de la comunidad.
+        </p>
+        <ul className="list-disc space-y-1 pl-5">
+          <li>
+            Solo se incluyen publicaciones <strong>ya virales</strong> y de{" "}
+            <strong>cuentas públicas</strong> (figuras públicas, instituciones, medios o creadores
+            con audiencia). Nunca de personas privadas.
+          </li>
+          <li>
+            Las cadenas sin autor identificable, como las de WhatsApp, se publican sin cuenta.
+          </li>
+          <li>
+            Se califica <strong>lo que afirma la publicación</strong>, no a la persona. El índice de
+            una cuenta es el promedio de sus publicaciones calificadas aquí.
+          </li>
+          <li>Las publicaciones las agrega el equipo editorial.</li>
+        </ul>
       </Seccion>
 
       <Seccion icono={Newspaper} titulo="Los medios que aparecen aquí">
