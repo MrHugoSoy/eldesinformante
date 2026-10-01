@@ -3,14 +3,8 @@ import Link from "next/link";
 import { ArrowRight, MessageCircle, MessageSquare, Plus, Star, Triangle } from "lucide-react";
 import { nivelReputacion } from "@/lib/credibilidad";
 import { fechaHora, numeroCorto } from "@/lib/formato";
-import {
-  enPortada,
-  ranking,
-  reglasPuntos,
-  tendencias,
-  usuarioActual,
-  usuarios,
-} from "@/lib/mock-data";
+import { reglasPuntos, tendencias, usuarioActual } from "@/lib/estatico";
+import type { Noticia, Usuario } from "@/lib/types";
 import { Avatar } from "./Avatar";
 import { EtiquetaCategoria } from "./EtiquetaCategoria";
 
@@ -34,13 +28,13 @@ function Tarjeta({
   );
 }
 
-function EnLaPortada() {
+function EnLaPortada({ noticias }: { noticias: Noticia[] }) {
   return (
     <Tarjeta titulo="En la portada">
       <ul className="flex flex-col gap-4">
-        {enPortada.map((n) => (
+        {noticias.map((n) => (
           <li key={n.id}>
-            <Link href="#" className="group flex gap-3">
+            <Link href={`/noticia/${n.slug}`} className="group flex gap-3">
               <div className="relative aspect-[4/3] w-24 shrink-0 overflow-hidden rounded-lg">
                 <Image src={n.imagen} alt="" fill sizes="96px" className="object-cover" />
               </div>
@@ -62,7 +56,7 @@ function EnLaPortada() {
   );
 }
 
-function UsuariosDestacados() {
+function UsuariosDestacados({ usuarios }: { usuarios: Usuario[] }) {
   return (
     <Tarjeta
       titulo="Usuarios destacados"
@@ -73,7 +67,7 @@ function UsuariosDestacados() {
       }
     >
       <ul className="flex flex-col gap-3">
-        {Object.values(usuarios).map((u) => (
+        {usuarios.map((u) => (
           <li key={u.id} className="flex items-center gap-3">
             <Avatar nombre={u.nombre} />
             <div className="text-sm leading-tight">
@@ -140,7 +134,7 @@ function TuReputacion() {
   );
 }
 
-function Ranking() {
+function Ranking({ ranking }: { ranking: Usuario[] }) {
   return (
     <Tarjeta
       titulo="Ranking de la semana"
@@ -211,13 +205,21 @@ function Tendencias() {
   );
 }
 
-export function SidebarDerecho() {
+export function SidebarDerecho({
+  enPortada,
+  ranking,
+  destacados,
+}: {
+  enPortada: Noticia[];
+  ranking: Usuario[];
+  destacados: Usuario[];
+}) {
   return (
     <aside className="flex flex-col gap-4">
-      <EnLaPortada />
+      <EnLaPortada noticias={enPortada} />
       <TuReputacion />
-      <Ranking />
-      <UsuariosDestacados />
+      <Ranking ranking={ranking} />
+      <UsuariosDestacados usuarios={destacados} />
       <QueOpinas />
       <Tendencias />
     </aside>

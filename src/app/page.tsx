@@ -3,9 +3,23 @@ import { Header } from "@/components/Header";
 import { NavegacionPrincipal } from "@/components/NavegacionPrincipal";
 import { SidebarDerecho } from "@/components/SidebarDerecho";
 import { NoticiaDestacada, TarjetaNoticia } from "@/components/TarjetaNoticia";
-import { noticias } from "@/lib/mock-data";
+import {
+  obtenerEnPortada,
+  obtenerFeed,
+  obtenerRanking,
+  obtenerUsuariosDestacados,
+} from "@/lib/datos";
 
-export default function Home() {
+// La portada se regenera como máximo cada 60 segundos con datos de Supabase.
+export const revalidate = 60;
+
+export default async function Home() {
+  const [noticias, enPortada, ranking, destacados] = await Promise.all([
+    obtenerFeed(),
+    obtenerEnPortada(),
+    obtenerRanking(),
+    obtenerUsuariosDestacados(),
+  ]);
   const [destacada, ...resto] = noticias;
 
   return (
@@ -24,12 +38,18 @@ export default function Home() {
 
         <main className="grid min-w-0 flex-1 gap-5 p-4 lg:grid-cols-[minmax(0,1fr)_320px] lg:p-5">
           <div className="flex min-w-0 flex-col gap-5">
-            <NoticiaDestacada noticia={destacada} />
+            {destacada ? (
+              <NoticiaDestacada noticia={destacada} />
+            ) : (
+              <p className="rounded-xl border border-slate-200 bg-white p-8 text-center text-slate-500">
+                Todavía no hay noticias publicadas.
+              </p>
+            )}
             {resto.map((n) => (
               <TarjetaNoticia key={n.id} noticia={n} />
             ))}
           </div>
-          <SidebarDerecho />
+          <SidebarDerecho enPortada={enPortada} ranking={ranking} destacados={destacados} />
         </main>
       </div>
 

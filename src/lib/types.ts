@@ -52,7 +52,9 @@ export type Noticia = {
   autor: Autor;
   ciudad: string;
   publicadoEn: string;
-  calificacion: Calificacion;
+  /** null mientras nadie la haya calificado */
+  calificacion: Calificacion | null;
+  totalCalificaciones: number;
   notas: NotaComunidad[];
   likes: number;
   comentarios: number;

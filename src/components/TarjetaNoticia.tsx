@@ -61,13 +61,15 @@ export function NoticiaDestacada({ noticia }: { noticia: Noticia }) {
                 <MessageSquare className="size-4" /> {numeroCorto(noticia.comentarios)}
               </span>
               <Share2 className="size-4" />
-              <span
-                className="flex items-center gap-1.5 font-semibold"
-                title="Índice de credibilidad"
-              >
-                <Star className="size-4 fill-amber-400 text-amber-400" />
-                {indiceCredibilidad(noticia.calificacion).toFixed(1)}
-              </span>
+              {noticia.calificacion && (
+                <span
+                  className="flex items-center gap-1.5 font-semibold"
+                  title={`Índice de credibilidad (${noticia.totalCalificaciones} calificaciones)`}
+                >
+                  <Star className="size-4 fill-amber-400 text-amber-400" />
+                  {indiceCredibilidad(noticia.calificacion).toFixed(1)}
+                </span>
+              )}
             </div>
           </div>
         </div>

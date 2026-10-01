@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Compass, House, Newspaper, Plus, Star, UserRound, Users } from "lucide-react";
-import { intereses } from "@/lib/mock-data";
+import { intereses } from "@/lib/estatico";
 
 const enlaces = [
   { href: "/", texto: "Inicio", icono: House },

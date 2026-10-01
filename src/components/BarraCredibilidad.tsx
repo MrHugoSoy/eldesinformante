@@ -24,9 +24,18 @@ export function BarraCredibilidad({
   calificacion,
   conBoton = false,
 }: {
-  calificacion: Calificacion;
+  calificacion: Calificacion | null;
   conBoton?: boolean;
 }) {
+  if (!calificacion) {
+    return (
+      <div className="flex items-center gap-2 border-y border-slate-200 bg-slate-50/60 px-4 py-3 text-sm text-slate-500">
+        <ShieldCheck className="size-7 shrink-0 text-slate-400" />
+        Aún sin calificaciones. Sé de los primeros en verificar esta noticia.
+      </div>
+    );
+  }
+
   const ejes = Object.keys(nombreEje) as Eje[];
   const peor = nivelCredibilidad(Math.min(...ejes.map((e) => calificacion[e])));
 

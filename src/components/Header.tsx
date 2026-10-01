@@ -1,6 +1,6 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import { Bell, ChevronDown, Search } from "lucide-react";
-import { menuCategorias, usuarioActual } from "@/lib/mock-data";
+import { menuCategorias, usuarioActual } from "@/lib/estatico";
 import { Avatar } from "./Avatar";
 import { Logo } from "./Logo";
 import { MenuMovil } from "./MenuMovil";

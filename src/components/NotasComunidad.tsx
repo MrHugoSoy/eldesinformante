@@ -1,6 +1,11 @@
-﻿import { Ellipsis, Plus, ShieldCheck } from "lucide-react";
+import { Ellipsis, Plus, ShieldCheck } from "lucide-react";
 import type { NotaComunidad } from "@/lib/types";
 import { Avatar } from "./Avatar";
+
+/** "https://www.ejemplo.org/ruta/" → "ejemplo.org/ruta" */
+function urlCorta(url: string) {
+  return url.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "");
+}
 
 export function NotasComunidad({ notas }: { notas: NotaComunidad[] }) {
   return (
@@ -15,28 +20,39 @@ export function NotasComunidad({ notas }: { notas: NotaComunidad[] }) {
         </button>
       </div>
 
-      <ul className="divide-y divide-slate-100 rounded-lg border border-slate-200">
-        {notas.map((nota) => (
-          <li key={nota.id} className="flex gap-3 p-3">
-            <Avatar nombre={nota.autor.nombre} />
-            <div className="min-w-0 flex-1 text-sm">
-              <p className="text-slate-700">{nota.texto}</p>
-              <p className="mt-1 flex flex-wrap items-center gap-x-2 text-xs text-slate-500">
-                <span className="font-medium text-slate-600">{nota.autor.nombre}</span>
-                <span>·</span>
-                <a href="#" className="truncate text-acento hover:underline">
-                  Ver fuente: {nota.fuenteUrl}
-                </a>
-                <span>·</span>
-                <span>Útil para {nota.utilPara} personas</span>
-              </p>
-            </div>
-            <button aria-label="Más opciones" className="self-start text-slate-400 hover:text-slate-600">
-              <Ellipsis className="size-5" />
-            </button>
-          </li>
-        ))}
-      </ul>
+      {notas.length === 0 ? (
+        <p className="rounded-lg border border-dashed border-slate-200 p-3 text-sm text-slate-500">
+          Nadie ha aportado contexto todavía. ¿Tienes una fuente que lo complemente?
+        </p>
+      ) : (
+        <ul className="divide-y divide-slate-100 rounded-lg border border-slate-200">
+          {notas.map((nota) => (
+            <li key={nota.id} className="flex gap-3 p-3">
+              <Avatar nombre={nota.autor.nombre} />
+              <div className="min-w-0 flex-1 text-sm">
+                <p className="text-slate-700">{nota.texto}</p>
+                <p className="mt-1 flex flex-wrap items-center gap-x-2 text-xs text-slate-500">
+                  <span className="font-medium text-slate-600">{nota.autor.nombre}</span>
+                  <span>·</span>
+                  <a
+                    href={nota.fuenteUrl}
+                    target="_blank"
+                    rel="noopener noreferrer nofollow"
+                    className="truncate text-acento hover:underline"
+                  >
+                    Ver fuente: {urlCorta(nota.fuenteUrl)}
+                  </a>
+                  <span>·</span>
+                  <span>Útil para {nota.utilPara} personas</span>
+                </p>
+              </div>
+              <button aria-label="Más opciones" className="self-start text-slate-400 hover:text-slate-600">
+                <Ellipsis className="size-5" />
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
     </section>
   );
 }
