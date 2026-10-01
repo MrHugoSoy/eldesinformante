@@ -35,12 +35,15 @@ export function Header() {
           <Link
             href="/buscar"
             aria-label="Buscar"
-            className="rounded-full p-2 hover:bg-white/10 md:hidden xl:block 2xl:hidden"
+            className="hidden rounded-full p-2 hover:bg-white/10 xl:block 2xl:hidden"
           >
             <Search className="size-5" />
           </Link>
           <Notificaciones />
-          <MenuUsuario />
+          {/* En celular, buscar y la cuenta están en la barra inferior */}
+          <div className="hidden md:block">
+            <MenuUsuario />
+          </div>
         </div>
       </div>
     </header>

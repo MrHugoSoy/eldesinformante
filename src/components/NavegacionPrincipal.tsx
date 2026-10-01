@@ -21,7 +21,8 @@ export function NavegacionPrincipal() {
 
   return (
     <div className="flex flex-col gap-6 text-sm">
-      <nav className="flex flex-col gap-1">
+      {/* En celular estos enlaces están en la barra inferior; aquí solo van las secciones */}
+      <nav className="hidden flex-col gap-1 md:flex">
         {enlaces.map(({ href, texto, icono: Icono }) => (
           <Link
             key={href}
