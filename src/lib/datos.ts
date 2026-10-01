@@ -19,7 +19,7 @@ const SELECT_NOTICIA = `
   autor:autores ( id, nombre, medio:medios ( id, nombre, dominio, verificado ) ),
   notas:notas_comunidad (
     id, texto, fuente_url, votos_utiles, votos_no_utiles,
-    autor:perfiles!notas_comunidad_autor_id_fkey ( id, nombre, descripcion, reputacion, puntos )
+    autor:perfiles!notas_comunidad_autor_id_fkey ( id, nombre, usuario, descripcion, reputacion, puntos, fuente_verificada )
   )
 `;
 
@@ -29,10 +29,15 @@ const autorDesconocido: Autor = {
   medio: { id: "", nombre: "El Desinformante", dominio: "eldesinformante.com", verificado: true },
 };
 
+/** Columnas de perfil que se leen en todas partes. */
+const SELECT_PERFIL = "id, nombre, usuario, descripcion, reputacion, puntos, fuente_verificada";
+
 type FilaPerfil = {
   id: string;
   nombre: string;
+  usuario: string | null;
   descripcion: string | null;
+  fuente_verificada: boolean;
   reputacion: number;
   puntos: number;
 };
@@ -41,7 +46,9 @@ function aUsuario(p: FilaPerfil, puntosSemana = 0): Usuario {
   return {
     id: p.id,
     nombre: p.nombre,
+    usuario: p.usuario,
     rol: p.descripcion ?? "",
+    fuenteVerificada: p.fuente_verificada,
     reputacion: Number(p.reputacion),
     puntos: p.puntos,
     puntosSemana,
@@ -294,7 +301,7 @@ export async function obtenerEnPortada(limite = 4): Promise<Noticia[]> {
 export async function obtenerRanking(limite = 5): Promise<Usuario[]> {
   const { data, error } = await clientePublico()
     .from("ranking_semanal")
-    .select("id, nombre, descripcion, reputacion, puntos, puntos_semana")
+    .select(`${SELECT_PERFIL}, puntos_semana`)
     .limit(limite);
   lanzar(error, "ranking");
   return (data ?? []).map((r) =>
@@ -302,9 +309,11 @@ export async function obtenerRanking(limite = 5): Promise<Usuario[]> {
       {
         id: r.id!,
         nombre: r.nombre!,
+        usuario: r.usuario,
         descripcion: r.descripcion,
         reputacion: r.reputacion ?? 0,
         puntos: r.puntos ?? 0,
+        fuente_verificada: r.fuente_verificada ?? false,
       },
       r.puntos_semana ?? 0,
     ),
@@ -315,10 +324,74 @@ export async function obtenerRanking(limite = 5): Promise<Usuario[]> {
 export async function obtenerUsuariosDestacados(limite = 5): Promise<Usuario[]> {
   const { data, error } = await clientePublico()
     .from("perfiles")
-    .select("id, nombre, descripcion, reputacion, puntos")
+    .select(SELECT_PERFIL)
     .eq("es_editor", false)
+    .gt("reputacion", 0)
     .order("reputacion", { ascending: false })
+    .order("puntos", { ascending: false })
     .limit(limite);
   lanzar(error, "usuarios destacados");
   return (data ?? []).map((p) => aUsuario(p));
+}
+
+/** Perfil público por nombre de usuario o, si no tiene, por id. */
+export async function obtenerPerfilPublico(usuarioOId: string) {
+  const esId = /^[0-9a-f-]{36}$/i.test(usuarioOId);
+  const { data, error } = await clientePublico()
+    .from("perfiles")
+    .select(`${SELECT_PERFIL}, es_editor, creado_en`)
+    .eq(esId ? "id" : "usuario", usuarioOId.toLowerCase())
+    .maybeSingle();
+  lanzar(error, "perfil");
+  if (!data) return null;
+  return { ...aUsuario(data), esEditor: data.es_editor, creadoEn: data.creado_en };
+}
+
+export type NotaDeUsuario = {
+  id: string;
+  texto: string;
+  fuenteUrl: string;
+  utiles: number;
+  noUtiles: number;
+  creadoEn: string;
+  noticia: { slug: string; titulo: string } | null;
+};
+
+/** Notas visibles que ha aportado un usuario, las más recientes primero. */
+export async function obtenerNotasDeUsuario(usuarioId: string): Promise<NotaDeUsuario[]> {
+  const { data, error } = await clientePublico()
+    .from("notas_comunidad")
+    .select("id, texto, fuente_url, votos_utiles, votos_no_utiles, creado_en, noticia:noticias ( slug, titulo )")
+    .eq("autor_id", usuarioId)
+    .order("creado_en", { ascending: false })
+    .limit(50);
+  lanzar(error, "notas del usuario");
+  return (data ?? []).map((n) => ({
+    id: n.id,
+    texto: n.texto,
+    fuenteUrl: n.fuente_url,
+    utiles: n.votos_utiles,
+    noUtiles: n.votos_no_utiles,
+    creadoEn: n.creado_en,
+    noticia: n.noticia,
+  }));
+}
+
+export type EventoPuntos = { id: string; puntos: number; motivo: string; creadoEn: string };
+
+/** Últimos movimientos de puntos de un usuario. */
+export async function obtenerHistorialPuntos(usuarioId: string, limite = 15): Promise<EventoPuntos[]> {
+  const { data, error } = await clientePublico()
+    .from("eventos_reputacion")
+    .select("id, puntos, motivo, creado_en")
+    .eq("usuario_id", usuarioId)
+    .order("creado_en", { ascending: false })
+    .limit(limite);
+  lanzar(error, "historial de puntos");
+  return (data ?? []).map((e) => ({
+    id: e.id,
+    puntos: e.puntos,
+    motivo: e.motivo,
+    creadoEn: e.creado_en,
+  }));
 }

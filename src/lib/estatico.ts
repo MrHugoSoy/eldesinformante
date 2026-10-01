@@ -30,8 +30,8 @@ export const tendencias: Tendencia[] = [
 
 /** Cómo se ganan puntos de reputación. */
 export const reglasPuntos = [
-  { puntos: 5, texto: "Por cada nota útil verificada" },
-  { puntos: 2, texto: "Por recibir likes en tus aportes" },
-  { puntos: 1, texto: "Por comentarios constructivos" },
-  { puntos: 10, texto: "Por ser verificado como fuente" },
+  { puntos: 5, texto: "Cuando tu nota es verificada por la comunidad" },
+  { puntos: 2, texto: "Por cada voto “útil” que recibe tu nota" },
+  { puntos: 1, texto: "Por comentarios constructivos (pronto)" },
+  { puntos: 10, texto: "Al ser verificado como fuente por el equipo editorial" },
 ];

@@ -28,7 +28,10 @@ export type Calificacion = {
 export type Usuario = {
   id: string;
   nombre: string;
+  /** nombre de usuario (@usuario); null si no lo ha elegido */
+  usuario: string | null;
   rol: string;
+  fuenteVerificada: boolean;
   reputacion: number;
   puntos: number;
   puntosSemana: number;

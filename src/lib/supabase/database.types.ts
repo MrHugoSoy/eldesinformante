@@ -198,6 +198,7 @@ export type Database = {
           creado_en: string
           id: string
           motivo: string
+          origen_id: string | null
           puntos: number
           referencia_id: string | null
           usuario_id: string
@@ -206,6 +207,7 @@ export type Database = {
           creado_en?: string
           id?: string
           motivo: string
+          origen_id?: string | null
           puntos: number
           referencia_id?: string | null
           usuario_id: string
@@ -214,6 +216,7 @@ export type Database = {
           creado_en?: string
           id?: string
           motivo?: string
+          origen_id?: string | null
           puntos?: number
           referencia_id?: string | null
           usuario_id?: string
@@ -513,6 +516,7 @@ export type Database = {
           creado_en: string
           descripcion: string | null
           es_editor: boolean
+          fuente_verificada: boolean
           id: string
           nombre: string
           puntos: number
@@ -524,6 +528,7 @@ export type Database = {
           creado_en?: string
           descripcion?: string | null
           es_editor?: boolean
+          fuente_verificada?: boolean
           id: string
           nombre: string
           puntos?: number
@@ -535,6 +540,7 @@ export type Database = {
           creado_en?: string
           descripcion?: string | null
           es_editor?: boolean
+          fuente_verificada?: boolean
           id?: string
           nombre?: string
           puntos?: number
@@ -708,11 +714,13 @@ export type Database = {
         Row: {
           avatar_url: string | null
           descripcion: string | null
+          fuente_verificada: boolean | null
           id: string | null
           nombre: string | null
           puntos: number | null
           puntos_semana: number | null
           reputacion: number | null
+          usuario: string | null
         }
         Relationships: []
       }

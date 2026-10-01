@@ -3,6 +3,7 @@ import { BadgeCheck, Clock, Plus, ShieldCheck } from "lucide-react";
 import type { NotaComunidad } from "@/lib/types";
 import { Avatar } from "./Avatar";
 import { FormNota } from "./interaccion/FormNota";
+import { NombreUsuario } from "./NombreUsuario";
 import { BotonesVoto, ProveedorVotos } from "./interaccion/VotosNota";
 
 /** Votos "útil" que necesita una nota para considerarse verificada por la comunidad. */
@@ -54,7 +55,7 @@ export function NotasComunidad({
             </div>
             <p className="text-slate-700">{nota.texto}</p>
             <p className="mt-1 flex flex-wrap items-center gap-x-2 text-xs text-slate-500">
-              <span className="font-medium text-slate-600">{nota.autor.nombre}</span>
+              <NombreUsuario usuario={nota.autor} className="font-medium text-slate-600" />
               <span>·</span>
               <a
                 href={nota.fuenteUrl}

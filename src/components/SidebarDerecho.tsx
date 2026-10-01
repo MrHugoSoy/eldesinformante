@@ -1,11 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
-import { MessageCircle, MessageSquare, Plus, Star } from "lucide-react";
+import { MessageCircle, MessageSquare, Star } from "lucide-react";
 import { fechaHora, numeroCorto } from "@/lib/formato";
 import { tendencias } from "@/lib/estatico";
 import type { Noticia, Usuario } from "@/lib/types";
 import { Avatar } from "./Avatar";
 import { EtiquetaCategoria } from "./EtiquetaCategoria";
+import { NombreUsuario } from "./NombreUsuario";
 import { TarjetaLateral } from "./TarjetaLateral";
 import { TuReputacion } from "./TuReputacion";
 
@@ -39,22 +40,19 @@ function EnLaPortada({ noticias }: { noticias: Noticia[] }) {
 
 function UsuariosDestacados({ usuarios }: { usuarios: Usuario[] }) {
   return (
-    <TarjetaLateral
-      titulo="Usuarios destacados"
-      accion={
-        <button className="flex items-center gap-1 rounded-md border border-acento/40 px-2 py-1 text-xs font-semibold text-acento hover:bg-acento/5">
-          <Plus className="size-3.5" /> Seguir
-        </button>
-      }
-    >
+    <TarjetaLateral titulo="Usuarios destacados">
       <ul className="flex flex-col gap-3">
         {usuarios.map((u) => (
           <li key={u.id} className="flex items-center gap-3">
             <Avatar nombre={u.nombre} />
-            <div className="text-sm leading-tight">
-              <p className="font-medium text-slate-900">{u.nombre}</p>
-              <p className="text-xs text-slate-500">{u.rol}</p>
+            <div className="min-w-0 flex-1 text-sm leading-tight">
+              <NombreUsuario usuario={u} className="font-medium text-slate-900" />
+              <p className="truncate text-xs text-slate-500">{u.rol}</p>
             </div>
+            <span className="flex items-center gap-1 text-xs font-semibold text-slate-700">
+              <Star className="size-3.5 fill-amber-400 text-amber-400" />
+              {u.reputacion.toFixed(1)}
+            </span>
           </li>
         ))}
       </ul>
@@ -64,16 +62,17 @@ function UsuariosDestacados({ usuarios }: { usuarios: Usuario[] }) {
 
 function Ranking({ ranking }: { ranking: Usuario[] }) {
   return (
-    <TarjetaLateral
-      titulo="Ranking de la semana"
-    >
+    <TarjetaLateral titulo="Ranking de la semana">
+      {ranking.length === 0 && (
+        <p className="text-sm text-slate-500">Nadie ha sumado puntos esta semana todavía.</p>
+      )}
       <ol className="flex flex-col gap-3">
         {ranking.map((u, i) => (
           <li key={u.id} className="flex items-center gap-3 text-sm">
             <span className="w-3 text-slate-500">{i + 1}</span>
             <Avatar nombre={u.nombre} tamano="sm" />
-            <div className="min-w-0 flex-1 leading-tight">
-              <p className="truncate font-medium text-slate-900">{u.nombre}</p>
+            <div className="min-w-0 flex-1 truncate leading-tight">
+              <NombreUsuario usuario={u} className="font-medium text-slate-900" />
               <p className="truncate text-xs text-slate-500">{u.rol}</p>
             </div>
             <span className="flex items-center gap-1 text-xs font-semibold text-slate-700">
@@ -102,9 +101,12 @@ function QueOpinas() {
           La información se enriquece con diferentes puntos de vista. Comparte tu
           opinión o agrega datos que puedan ayudar a la comunidad.
         </p>
-        <button className="mt-3 w-full rounded-lg bg-acento py-2 text-sm font-semibold text-white hover:bg-acento-oscuro">
-          Crear nota
-        </button>
+        <Link
+          href="/noticias"
+          className="mt-3 block w-full rounded-lg bg-acento py-2 text-center text-sm font-semibold text-white hover:bg-acento-oscuro"
+        >
+          Elige una noticia y aporta
+        </Link>
       </div>
     </section>
   );

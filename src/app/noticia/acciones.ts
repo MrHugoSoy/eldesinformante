@@ -11,11 +11,12 @@ async function usuarioActual() {
   return { supabase, userId: data?.claims.sub as string | undefined };
 }
 
-/** Refresca la noticia y las páginas donde aparece su credibilidad. */
+/** Refresca la noticia, las páginas donde aparece su credibilidad y los perfiles (puntos). */
 function refrescar(slug: string) {
   revalidatePath(`/noticia/${slug}`);
   revalidatePath("/");
   revalidatePath("/noticias");
+  revalidatePath("/u/[usuario]", "page");
 }
 
 const SIN_SESION = "Tu sesión expiró. Vuelve a entrar.";
