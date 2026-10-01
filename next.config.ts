@@ -2,8 +2,16 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
-    // Fotos de ejemplo de la maqueta. En la Fase 3 se agrega Supabase Storage.
-    remotePatterns: [{ protocol: "https", hostname: "images.unsplash.com" }],
+    remotePatterns: [
+      // Fotos de las noticias de demostración
+      { protocol: "https", hostname: "images.unsplash.com" },
+      // Imágenes subidas desde el panel editorial (Supabase Storage, bucket "noticias")
+      {
+        protocol: "https",
+        hostname: "gbouxjmfizijoqdwwctd.supabase.co",
+        pathname: "/storage/v1/object/public/noticias/**",
+      },
+    ],
   },
 };
 
