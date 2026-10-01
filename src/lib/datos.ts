@@ -16,7 +16,7 @@ const SELECT_NOTICIA = `
   id, slug, titulo, resumen, imagen_url, ciudad, publicado_en, destacada,
   cred_fuente, cred_contenido, cred_contexto, total_calificaciones, total_likes, total_comentarios,
   categoria:categorias ( slug, nombre ),
-  autor:autores ( id, nombre, medio:medios ( id, nombre, dominio, verificado ) ),
+  autor:autores ( id, nombre, medio:medios ( id, nombre, dominio, verificado, logo_url ) ),
   notas:notas_comunidad (
     id, texto, fuente_url, votos_utiles, votos_no_utiles,
     autor:perfiles!notas_comunidad_autor_id_fkey ( id, nombre, usuario, descripcion, reputacion, puntos, fuente_verificada )
@@ -26,7 +26,13 @@ const SELECT_NOTICIA = `
 const autorDesconocido: Autor = {
   id: "",
   nombre: "Redacción",
-  medio: { id: "", nombre: "El Desinformante", dominio: "eldesinformante.com", verificado: true },
+  medio: {
+    id: "",
+    nombre: "El Desinformante",
+    dominio: "eldesinformante.com",
+    verificado: true,
+    logo_url: null,
+  },
 };
 
 /** Columnas de perfil que se leen en todas partes. */
@@ -268,7 +274,7 @@ export async function obtenerAutor(id: string) {
   const [{ data: autor, error }, { data: cred }] = await Promise.all([
     supabase
       .from("autores")
-      .select("id, nombre, medio:medios ( id, nombre, dominio, verificado )")
+      .select("id, nombre, medio:medios ( id, nombre, dominio, verificado, logo_url )")
       .eq("id", id)
       .maybeSingle(),
     supabase.from("credibilidad_autores").select("*").eq("autor_id", id).maybeSingle(),
@@ -281,7 +287,11 @@ export async function obtenerAutor(id: string) {
 export async function obtenerMedio(id: string) {
   const supabase = clientePublico();
   const [{ data: medio, error }, { data: cred }] = await Promise.all([
-    supabase.from("medios").select("id, nombre, dominio, verificado").eq("id", id).maybeSingle(),
+    supabase
+      .from("medios")
+      .select("id, nombre, dominio, verificado, logo_url")
+      .eq("id", id)
+      .maybeSingle(),
     supabase.from("credibilidad_medios").select("*").eq("medio_id", id).maybeSingle(),
   ]);
   lanzar(error, "medio");
@@ -298,6 +308,8 @@ export type FilaRanking = {
   /** medio al que pertenece (solo autores) */
   subtitulo: string | null;
   verificado: boolean;
+  /** datos para pintar el logo (solo medios) */
+  logo: { nombre: string; dominio: string | null; logo_url: string | null } | null;
   credibilidad: CredibilidadAgregada;
 };
 
@@ -308,7 +320,7 @@ export async function obtenerRankingCredibilidad(): Promise<{
 }> {
   const supabase = clientePublico();
   const [medios, autores, credMedios, credAutores] = await Promise.all([
-    supabase.from("medios").select("id, nombre, dominio, verificado"),
+    supabase.from("medios").select("id, nombre, dominio, verificado, logo_url"),
     supabase.from("autores").select("id, nombre, medio:medios ( nombre, verificado )"),
     supabase.from("credibilidad_medios").select("*"),
     supabase.from("credibilidad_autores").select("*"),
@@ -337,6 +349,7 @@ export async function obtenerRankingCredibilidad(): Promise<{
         nombre: m.nombre,
         subtitulo: m.dominio,
         verificado: m.verificado,
+        logo: { nombre: m.nombre, dominio: m.dominio, logo_url: m.logo_url },
         credibilidad: aCredibilidad(porMedio.get(m.id) ?? null),
       })),
     ),
@@ -348,6 +361,7 @@ export async function obtenerRankingCredibilidad(): Promise<{
           nombre: a.nombre,
           subtitulo: a.medio?.nombre ?? null,
           verificado: false,
+          logo: null,
           credibilidad: aCredibilidad(porAutor.get(a.id) ?? null),
         })),
     ),

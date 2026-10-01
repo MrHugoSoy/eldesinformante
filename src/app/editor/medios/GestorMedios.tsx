@@ -2,7 +2,9 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { BadgeCheck, Pencil, Plus } from "lucide-react";
+import { BadgeCheck, ImageUp, Pencil, Plus } from "lucide-react";
+import { LogoMedio } from "@/components/LogoMedio";
+import { clienteNavegador } from "@/lib/supabase/navegador";
 import { guardarAutor, guardarMedio } from "../acciones";
 
 export type FilaMedio = {
@@ -10,6 +12,7 @@ export type FilaMedio = {
   nombre: string;
   dominio: string | null;
   verificado: boolean;
+  logo_url: string | null;
   indice: number | null;
   totalNoticias: number;
 };
@@ -41,13 +44,28 @@ function FormMedio({ inicial, alTerminar }: { inicial?: FilaMedio; alTerminar: (
   const [nombre, setNombre] = useState(inicial?.nombre ?? "");
   const [dominio, setDominio] = useState(inicial?.dominio ?? "");
   const [verificado, setVerificado] = useState(inicial?.verificado ?? false);
+  const [logoUrl, setLogoUrl] = useState(inicial?.logo_url ?? "");
+  const [subiendo, setSubiendo] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pendiente, iniciar] = useTransition();
+
+  async function subirLogo(archivo: File) {
+    setError(null);
+    if (archivo.size > 1024 * 1024) return setError("El logo pesa más de 1 MB.");
+    setSubiendo(true);
+    const extension = archivo.name.split(".").pop()?.toLowerCase() ?? "png";
+    const ruta = `logos/${crypto.randomUUID()}.${extension}`;
+    const almacen = clienteNavegador().storage.from("noticias");
+    const { error: errorSubida } = await almacen.upload(ruta, archivo, { contentType: archivo.type });
+    setSubiendo(false);
+    if (errorSubida) return setError("No pudimos subir el logo (JPG, PNG o WebP).");
+    setLogoUrl(almacen.getPublicUrl(ruta).data.publicUrl);
+  }
 
   function guardar(e: React.FormEvent) {
     e.preventDefault();
     iniciar(async () => {
-      const r = await guardarMedio({ id: inicial?.id, nombre, dominio, verificado });
+      const r = await guardarMedio({ id: inicial?.id, nombre, dominio, verificado, logoUrl });
       if (r.error) return setError(r.error);
       router.refresh();
       alTerminar();
@@ -56,13 +74,29 @@ function FormMedio({ inicial, alTerminar }: { inicial?: FilaMedio; alTerminar: (
 
   return (
     <form onSubmit={guardar} className="flex flex-wrap items-center gap-2 bg-slate-50 p-3">
+      <LogoMedio key={logoUrl + dominio} medio={{ nombre: nombre || "?", dominio: dominio || null, logo_url: logoUrl || null }} />
       <input value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Nombre del medio" required className={`${campo} flex-1`} aria-label="Nombre del medio" />
       <input value={dominio} onChange={(e) => setDominio(e.target.value)} placeholder="dominio.com" className={`${campo} w-40`} aria-label="Dominio" />
       <label className="flex items-center gap-1.5 text-sm">
         <input type="checkbox" checked={verificado} onChange={(e) => setVerificado(e.target.checked)} className="size-4" />
         Verificado
       </label>
-      <button disabled={pendiente} className="rounded-lg bg-acento px-3 py-2 text-sm font-semibold text-white disabled:opacity-50">
+      <label className="flex cursor-pointer items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm hover:bg-slate-50">
+        <ImageUp className="size-4" /> {subiendo ? "Subiendo…" : logoUrl ? "Cambiar logo" : "Subir logo"}
+        <input
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          className="sr-only"
+          disabled={subiendo}
+          onChange={(e) => e.target.files?.[0] && subirLogo(e.target.files[0])}
+        />
+      </label>
+      {logoUrl && (
+        <button type="button" onClick={() => setLogoUrl("")} className="text-sm text-slate-500 hover:text-red-600">
+          Usar ícono automático
+        </button>
+      )}
+      <button disabled={pendiente || subiendo} className="rounded-lg bg-acento px-3 py-2 text-sm font-semibold text-white disabled:opacity-50">
         Guardar
       </button>
       <button type="button" onClick={alTerminar} className="text-sm text-slate-500 hover:underline">
@@ -144,6 +178,7 @@ export function GestorMedios({ medios, autores }: { medios: FilaMedio[]; autores
               <li key={m.id}><FormMedio inicial={m} alTerminar={cerrar} /></li>
             ) : (
               <li key={m.id} className="flex flex-wrap items-center gap-3 p-4">
+                <LogoMedio medio={m} />
                 <div className="min-w-0 flex-1">
                   <p className="flex items-center gap-1 font-semibold text-slate-900">
                     {m.nombre}

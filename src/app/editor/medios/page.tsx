@@ -19,7 +19,7 @@ function indice(c: Cred | undefined) {
 export default async function MediosEditor() {
   const { supabase } = await exigirEditor("/editor/medios");
   const [{ data: medios }, { data: autores }, { data: credMedios }, { data: credAutores }] = await Promise.all([
-    supabase.from("medios").select("id, nombre, dominio, verificado").order("nombre"),
+    supabase.from("medios").select("id, nombre, dominio, verificado, logo_url").order("nombre"),
     supabase.from("autores").select("id, nombre, medio_id, medio:medios ( nombre )").order("nombre"),
     supabase.from("credibilidad_medios").select("*"),
     supabase.from("credibilidad_autores").select("*"),

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { BadgeCheck, Scale, ShieldCheck, Star, Users } from "lucide-react";
+import { BadgeCheck, Newspaper, Scale, ShieldCheck, Star, Users } from "lucide-react";
 import { SelloCredibilidad } from "@/components/SelloCredibilidad";
 import { nivelesReputacion, UTILES_PARA_VERIFICAR } from "@/lib/credibilidad";
 import { CORREO_CONTACTO, reglasPuntos } from "@/lib/estatico";
@@ -148,6 +148,35 @@ export default function ComoCalificamos() {
           “útil” contra los “no útil” que han recibido. Las fuentes verificadas por la redacción
           reciben medio punto adicional.
         </p>
+      </Seccion>
+
+      <Seccion icono={Newspaper} titulo="Los medios que aparecen aquí">
+        <p>
+          El Desinformante enlaza a notas publicadas por otros medios. De cada una mostramos solo el
+          título, un resumen y el enlace para leerla completa en el sitio de quien la publicó.
+        </p>
+        <ul className="list-disc space-y-1 pl-5">
+          <li>
+            Los nombres e íconos de los medios se usan <strong>únicamente para identificar la
+            fuente</strong>. Son marcas de sus respectivos dueños.
+          </li>
+          <li>
+            <strong>No tenemos relación comercial ni de patrocinio</strong> con esos medios, y ellos
+            no respaldan este sitio.
+          </li>
+          <li>
+            Las calificaciones son la <strong>opinión</strong> de la comunidad y del equipo
+            editorial sobre notas concretas; no son una afirmación de hechos sobre el medio.
+          </li>
+          <li>
+            Si representas a un medio y quieres corregir un dato o pedir que se retire su ícono,
+            escríbenos a{" "}
+            <a href={`mailto:${CORREO_CONTACTO}`} className="font-semibold text-acento hover:underline">
+              {CORREO_CONTACTO}
+            </a>
+            .
+          </li>
+        </ul>
       </Seccion>
 
       <p className="text-center text-sm text-slate-500">

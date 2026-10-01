@@ -73,7 +73,10 @@ export function Footer() {
       </div>
       <div className="border-t border-white/10">
         <div className="mx-auto flex max-w-[1440px] flex-col gap-2 px-4 py-4 text-xs sm:flex-row sm:items-center sm:justify-between">
-          <p>© {new Date().getFullYear()} El Desinformante</p>
+          <p>
+            © {new Date().getFullYear()} El Desinformante. Las marcas e íconos de los medios
+            pertenecen a sus dueños y solo identifican la fuente.
+          </p>
           <nav className="flex gap-4">
             <Link href="#" className="hover:text-white">Términos y condiciones</Link>
             <Link href="#" className="hover:text-white">Política de privacidad</Link>

@@ -8,8 +8,10 @@ export type Categoria = {
 export type Medio = {
   id: string;
   nombre: string;
-  dominio: string;
+  dominio: string | null;
   verificado: boolean;
+  /** Logo subido desde el panel; si es null se usa el ícono del sitio del medio. */
+  logo_url: string | null;
 };
 
 export type Autor = {

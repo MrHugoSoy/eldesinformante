@@ -157,14 +157,18 @@ export async function guardarMedio(d: {
   nombre: string;
   dominio: string;
   verificado: boolean;
+  /** URL del logo subido; "" lo quita (vuelve al ícono automático) */
+  logoUrl: string;
 }): Promise<Resultado> {
   const editor = await editorActual();
   if (!editor) return { error: SIN_PERMISO };
   const nombre = d.nombre.trim();
   if (!nombre) return { error: "Escribe el nombre del medio." };
   const dominio = d.dominio.trim().replace(/^https?:\/\//, "").replace(/\/.*$/, "").toLowerCase() || null;
+  const logoUrl = d.logoUrl.trim();
+  if (!urlValida(logoUrl)) return { error: "El logo no es una dirección válida." };
 
-  const campos = { nombre, dominio, verificado: d.verificado };
+  const campos = { nombre, dominio, verificado: d.verificado, logo_url: logoUrl || null };
   const { error } = d.id
     ? await editor.supabase.from("medios").update(campos).eq("id", d.id)
     : await editor.supabase.from("medios").insert(campos);

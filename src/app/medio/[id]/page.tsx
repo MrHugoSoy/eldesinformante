@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { BadgeCheck, CircleAlert } from "lucide-react";
 import { EncabezadoPagina, ListaNoticias } from "@/components/ListaNoticias";
+import { LogoMedio } from "@/components/LogoMedio";
 import { ResumenCredibilidad } from "@/components/ResumenCredibilidad";
 import { obtenerFeed, obtenerMedio } from "@/lib/datos";
 
@@ -32,7 +33,15 @@ export default async function PaginaMedio({ params }: PageProps<"/medio/[id]">) 
   return (
     <ListaNoticias
       encabezado={
-        <EncabezadoPagina antetitulo="Medio" titulo={medio.nombre}>
+        <EncabezadoPagina
+          antetitulo="Medio"
+          titulo={
+            <span className="flex items-center gap-3">
+              <LogoMedio medio={medio} tamano="lg" />
+              {medio.nombre}
+            </span>
+          }
+        >
           <div className="mt-2 flex flex-wrap items-center gap-2 text-sm">
             {medio.verificado ? (
               <span className="flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 font-semibold text-emerald-700">

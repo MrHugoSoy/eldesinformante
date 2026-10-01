@@ -2,7 +2,7 @@ import Link from "next/link";
 import { BadgeCheck } from "lucide-react";
 import { fechaHora } from "@/lib/formato";
 import type { Noticia } from "@/lib/types";
-import { Avatar } from "./Avatar";
+import { LogoMedio } from "./LogoMedio";
 
 /** Autor, medio, ciudad y fecha. El autor y el medio llevan a su página de credibilidad. */
 export function Byline({ noticia, claro = false }: { noticia: Noticia; claro?: boolean }) {
@@ -11,7 +11,7 @@ export function Byline({ noticia, claro = false }: { noticia: Noticia; claro?: b
 
   return (
     <div className="flex items-center gap-2.5">
-      <Avatar nombre={autor.nombre} />
+      <LogoMedio medio={autor.medio} />
       <div className="text-xs leading-snug">
         <p className={`font-semibold ${claro ? "text-white" : "text-slate-800"}`}>
           Por{" "}

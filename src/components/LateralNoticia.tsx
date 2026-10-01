@@ -2,7 +2,8 @@ import { Foto } from "@/components/Foto";
 import Link from "next/link";
 import { BadgeCheck, CircleHelp } from "lucide-react";
 import { obtenerAutor, obtenerFeed, obtenerMedio } from "@/lib/datos";
-import type { CredibilidadAgregada, NoticiaCompleta } from "@/lib/types";
+import type { CredibilidadAgregada, Medio, NoticiaCompleta } from "@/lib/types";
+import { LogoMedio } from "./LogoMedio";
 import { SelloCredibilidad } from "./SelloCredibilidad";
 import { TarjetaLateral } from "./TarjetaLateral";
 
@@ -12,18 +13,21 @@ function Ficha({
   href,
   verificado,
   credibilidad,
+  logo,
 }: {
   etiqueta: string;
   nombre: string;
   href: string;
   verificado?: boolean;
   credibilidad: CredibilidadAgregada;
+  logo?: Medio;
 }) {
   const { calificacion: c, totalNoticias } = credibilidad;
   return (
     <div>
       <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{etiqueta}</p>
-      <Link href={href} className="flex items-center gap-1 font-semibold text-slate-900 hover:text-acento">
+      <Link href={href} className="flex items-center gap-1.5 font-semibold text-slate-900 hover:text-acento">
+        {logo && <LogoMedio medio={logo} tamano="sm" />}
         {nombre}
         {verificado && <BadgeCheck className="size-4 text-acento" aria-label="Verificado" />}
       </Link>
@@ -73,6 +77,7 @@ export async function LateralNoticia({ noticia }: { noticia: NoticiaCompleta }) 
                 href={`/medio/${datosMedio.medio.id}`}
                 verificado={datosMedio.medio.verificado}
                 credibilidad={datosMedio.credibilidad}
+                logo={datosMedio.medio}
               />
             )}
           </div>

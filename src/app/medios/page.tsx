@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { BadgeCheck } from "lucide-react";
+import { LogoMedio } from "@/components/LogoMedio";
 import { SelloCredibilidad } from "@/components/SelloCredibilidad";
 import { MINIMO_PARA_RANKING, obtenerRankingCredibilidad, type FilaRanking } from "@/lib/datos";
 
@@ -22,6 +23,7 @@ function Tabla({ filas, base }: { filas: FilaRanking[]; base: "/medio" | "/autor
         <span className="w-6 shrink-0 text-center font-serif text-lg font-bold text-slate-400">
           {posicion ?? "–"}
         </span>
+        {f.logo && <LogoMedio medio={f.logo} />}
         <div className="min-w-0 flex-1">
           <Link
             href={`${base}/${f.id}`}
