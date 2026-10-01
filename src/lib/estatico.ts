@@ -3,6 +3,9 @@
 
 import type { Categoria } from "./types";
 
+/** Correo público de contacto del sitio. */
+export const CORREO_CONTACTO = "contacto@eldesinformante.com";
+
 /** Secciones fijas del menú (deben existir en la tabla categorias). */
 export const secciones: Categoria[] = [
   { slug: "mexico", nombre: "México" },

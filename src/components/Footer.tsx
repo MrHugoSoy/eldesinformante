@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { secciones } from "@/lib/estatico";
+import { Mail } from "lucide-react";
+import { CORREO_CONTACTO, secciones } from "@/lib/estatico";
 import { Logo } from "./Logo";
 
 const aEnlace = (s: { slug: string; nombre: string }) => ({
@@ -19,9 +20,13 @@ const columnas = [
   },
   {
     titulo: "Sobre nosotros",
-    enlaces: ["Nuestra historia", "Cómo calificamos", "Código de ética", "Contacto"].map(
-      (texto) => ({ texto, href: "#" }),
-    ),
+    enlaces: [
+      ...["Nuestra historia", "Cómo calificamos", "Código de ética"].map((texto) => ({
+        texto,
+        href: "#",
+      })),
+      { texto: "Contacto", href: `mailto:${CORREO_CONTACTO}` },
+    ],
   },
 ];
 
@@ -33,6 +38,13 @@ export function Footer() {
       <div className="mx-auto grid max-w-[1440px] gap-8 px-4 py-10 sm:grid-cols-2 lg:grid-cols-5">
         <div className="lg:col-span-1">
           <Logo />
+          <a
+            href={`mailto:${CORREO_CONTACTO}`}
+            className="mt-4 flex items-center gap-2 text-sm hover:text-white"
+          >
+            <Mail className="size-4 shrink-0" />
+            <span className="break-all">{CORREO_CONTACTO}</span>
+          </a>
         </div>
         {columnas.map((c) => (
           <div key={c.titulo}>
@@ -67,7 +79,7 @@ export function Footer() {
           <nav className="flex gap-4">
             <Link href="#" className="hover:text-white">Términos y condiciones</Link>
             <Link href="#" className="hover:text-white">Política de privacidad</Link>
-            <Link href="#" className="hover:text-white">Ayuda</Link>
+            <a href={`mailto:${CORREO_CONTACTO}`} className="hover:text-white">Ayuda</a>
           </nav>
         </div>
       </div>
