@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Building2, LayoutDashboard, Newspaper, ShieldAlert, Users } from "lucide-react";
+import { Building2, LayoutDashboard, Newspaper, Rss, ShieldAlert, Users } from "lucide-react";
 
 const enlaces = [
   { href: "/editor", texto: "Resumen", icono: LayoutDashboard },
   { href: "/editor/noticias", texto: "Noticias", icono: Newspaper },
+  { href: "/editor/fuentes", texto: "Fuentes RSS", icono: Rss },
   { href: "/editor/medios", texto: "Medios y autores", icono: Building2 },
   { href: "/editor/usuarios", texto: "Usuarios", icono: Users },
   { href: "/editor/moderacion", texto: "Moderación", icono: ShieldAlert },

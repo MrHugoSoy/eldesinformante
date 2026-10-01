@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import Image from "next/image";
+import { Foto } from "@/components/Foto";
 import { useRouter } from "next/navigation";
 import { Eye, ImageUp, Pencil, Trash2 } from "lucide-react";
 import { Estrellas } from "@/components/interaccion/Estrellas";
@@ -119,7 +119,7 @@ export function FormNoticia({
           </div>
           {d.imagenUrl && (
             <div className="relative aspect-[16/9]">
-              <Image src={d.imagenUrl} alt="" fill sizes="768px" className="object-cover" />
+              <Foto src={d.imagenUrl} alt="" fill sizes="768px" className="object-cover" />
             </div>
           )}
           <div className="flex flex-col gap-4 p-6 text-[17px] leading-relaxed text-slate-800">
@@ -171,7 +171,7 @@ export function FormNoticia({
             <div className="flex flex-wrap items-center gap-3">
               {d.imagenUrl && (
                 <div className="relative aspect-[16/10] w-40 overflow-hidden rounded-lg">
-                  <Image src={d.imagenUrl} alt="" fill sizes="160px" className="object-cover" />
+                  <Foto src={d.imagenUrl} alt="" fill sizes="160px" className="object-cover" />
                 </div>
               )}
               <label className="flex cursor-pointer items-center gap-1.5 rounded-lg border border-slate-300 px-3 py-2 text-sm hover:bg-slate-50">

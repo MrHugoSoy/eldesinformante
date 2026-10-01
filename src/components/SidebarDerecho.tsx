@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { Foto } from "@/components/Foto";
 import Link from "next/link";
 import { MessageCircle, MessageSquare, Star } from "lucide-react";
 import { fechaHora, numeroCorto } from "@/lib/formato";
@@ -18,8 +18,8 @@ function EnLaPortada({ noticias }: { noticias: Noticia[] }) {
         {noticias.map((n) => (
           <li key={n.id}>
             <Link href={`/noticia/${n.slug}`} className="group flex gap-3">
-              <div className="relative aspect-[4/3] w-24 shrink-0 overflow-hidden rounded-lg">
-                <Image src={n.imagen} alt="" fill sizes="96px" className="object-cover" />
+              <div className="relative aspect-[4/3] w-24 shrink-0 overflow-hidden rounded-lg bg-slate-100">
+                {n.imagen && <Foto src={n.imagen} alt="" fill sizes="96px" className="object-cover" />}
               </div>
               <div className="min-w-0">
                 <EtiquetaCategoria categoria={n.categoria} claro />

@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { Foto } from "@/components/Foto";
 import Link from "next/link";
 import { BadgeCheck, CircleHelp } from "lucide-react";
 import { obtenerAutor, obtenerFeed, obtenerMedio } from "@/lib/datos";
@@ -92,7 +92,7 @@ export async function LateralNoticia({ noticia }: { noticia: NoticiaCompleta }) 
               <li key={n.id}>
                 <Link href={`/noticia/${n.slug}`} className="group flex gap-3">
                   <div className="relative aspect-[4/3] w-24 shrink-0 overflow-hidden rounded-lg bg-slate-100">
-                    {n.imagen && <Image src={n.imagen} alt="" fill sizes="96px" className="object-cover" />}
+                    {n.imagen && <Foto src={n.imagen} alt="" fill sizes="96px" className="object-cover" />}
                   </div>
                   <div className="min-w-0">
                     <p className="font-serif text-sm font-semibold leading-snug text-slate-900 group-hover:text-acento">

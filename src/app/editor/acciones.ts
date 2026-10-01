@@ -78,14 +78,19 @@ export async function guardarNoticia(d: DatosNoticia): Promise<Resultado> {
 
   if (id) {
     // Al publicar por primera vez, la fecha de publicación pasa a ser ahora
-    const { data: previa } = await supabase.from("noticias").select("estado, slug").eq("id", id).single();
+    const { data: previa } = await supabase
+      .from("noticias")
+      .select("estado, slug, fuente_rss_id")
+      .eq("id", id)
+      .single();
     if (!previa) return { error: "La noticia ya no existe." };
     slug = previa.slug;
     const { error } = await supabase
       .from("noticias")
       .update({
         ...campos,
-        ...(previa.estado === "borrador" && d.estado === "publicada"
+        // Las importadas por RSS conservan la fecha en que las publicó el medio
+        ...(previa.estado !== "publicada" && d.estado === "publicada" && !previa.fuente_rss_id
           ? { publicado_en: new Date().toISOString() }
           : {}),
       })
@@ -236,5 +241,90 @@ export async function moderarComentarioEditor(
   });
   if (error) return { error: "No pudimos moderar el comentario." };
   refrescarSitio(["/editor/moderacion"]);
+  return { ok: true };
+}
+
+// ---------------------------------------------------------------------
+// Fuentes RSS e importadas
+// ---------------------------------------------------------------------
+
+export async function guardarFuente(d: {
+  medioId: string;
+  url: string;
+  categoria: string;
+}): Promise<Resultado> {
+  const editor = await editorActual();
+  if (!editor) return { error: SIN_PERMISO };
+  const url = d.url.trim();
+  if (!d.medioId || !d.categoria) return { error: "Elige el medio y la sección." };
+  if (!url || !urlValida(url)) return { error: "La dirección del RSS debe empezar con https://" };
+
+  const { error } = await editor.supabase
+    .from("fuentes_rss")
+    .insert({ medio_id: d.medioId, url, categoria_slug: d.categoria });
+  if (error) {
+    return {
+      error: error.code === "23505" ? "Esa fuente ya está agregada." : "No pudimos agregar la fuente.",
+    };
+  }
+  revalidatePath("/editor/fuentes");
+  return { ok: true };
+}
+
+export async function alternarFuente(id: string, activa: boolean): Promise<Resultado> {
+  const editor = await editorActual();
+  if (!editor) return { error: SIN_PERMISO };
+  const { error } = await editor.supabase.from("fuentes_rss").update({ activa }).eq("id", id);
+  if (error) return { error: "No pudimos actualizar la fuente." };
+  revalidatePath("/editor/fuentes");
+  return { ok: true };
+}
+
+export async function eliminarFuente(id: string): Promise<Resultado> {
+  const editor = await editorActual();
+  if (!editor) return { error: SIN_PERMISO };
+  const { error } = await editor.supabase.from("fuentes_rss").delete().eq("id", id);
+  if (error) return { error: "No pudimos eliminar la fuente." };
+  revalidatePath("/editor/fuentes");
+  return { ok: true };
+}
+
+/** Llama a la Edge Function "importar-rss" con la sesión del editor (se salta la espera de 30 min). */
+export async function importarAhora(fuenteId?: string): Promise<Resultado & { nuevas?: number }> {
+  const editor = await editorActual();
+  if (!editor) return { error: SIN_PERMISO };
+  const { data, error } = await editor.supabase.functions.invoke("importar-rss", {
+    body: fuenteId ? { fuente_id: fuenteId } : {},
+  });
+  if (error) return { error: "No pudimos importar. Inténtalo de nuevo en un momento." };
+  revalidatePath("/editor", "layout");
+  return { ok: true, nuevas: (data as { total?: number } | null)?.total ?? 0 };
+}
+
+/** Publica un borrador tal como está (para revisar rápido las importadas). */
+export async function publicarRapido(id: string): Promise<Resultado> {
+  const editor = await editorActual();
+  if (!editor) return { error: SIN_PERMISO };
+  const { data, error } = await editor.supabase
+    .from("noticias")
+    .update({ estado: "publicada" })
+    .eq("id", id)
+    .select("slug")
+    .single();
+  if (error || !data) return { error: "No pudimos publicar la noticia." };
+  refrescarSitio([`/noticia/${data.slug}`]);
+  return { ok: true };
+}
+
+/** Marca una importada como descartada: no se publica ni se vuelve a importar. */
+export async function descartarNoticia(id: string): Promise<Resultado> {
+  const editor = await editorActual();
+  if (!editor) return { error: SIN_PERMISO };
+  const { error } = await editor.supabase
+    .from("noticias")
+    .update({ estado: "descartada" })
+    .eq("id", id);
+  if (error) return { error: "No pudimos descartar la noticia." };
+  refrescarSitio();
   return { ok: true };
 }

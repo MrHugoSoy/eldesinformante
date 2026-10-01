@@ -127,8 +127,10 @@ function lanzar(error: { message: string } | null, que: string) {
   if (error) throw new Error(`Supabase (${que}): ${error.message}`);
 }
 
-type FiltrosFeed = {
+export type FiltrosFeed = {
   limite?: number;
+  /** cuántas saltar (para "Cargar más") */
+  desde?: number;
   /** true = la destacada va primero (portada) */
   destacadaPrimero?: boolean;
   categoria?: string;
@@ -137,9 +139,13 @@ type FiltrosFeed = {
   ids?: string[];
 };
 
+/** Tamaño de página de las listas de noticias. */
+export const POR_PAGINA = 10;
+
 /** Noticias publicadas, de la más reciente a la más antigua, con filtros opcionales. */
 export async function obtenerFeed({
-  limite = 20,
+  limite = POR_PAGINA,
+  desde = 0,
   destacadaPrimero = false,
   categoria,
   autorId,
@@ -160,7 +166,8 @@ export async function obtenerFeed({
 
   const { data, error } = await consulta
     .order("publicado_en", { ascending: false })
-    .limit(limite)
+    .order("id") // desempate estable para que la paginación no repita ni salte noticias
+    .range(desde, desde + limite - 1)
     .overrideTypes<FilaNoticia[], { merge: false }>();
   lanzar(error, "feed");
   return (data ?? []).map(aNoticia);
@@ -280,6 +287,71 @@ export async function obtenerMedio(id: string) {
   lanzar(error, "medio");
   if (!medio) return null;
   return { medio, credibilidad: aCredibilidad(cred) };
+}
+
+/** Noticias calificadas que necesita un medio o autor para entrar al ranking. */
+export const MINIMO_PARA_RANKING = 3;
+
+export type FilaRanking = {
+  id: string;
+  nombre: string;
+  /** medio al que pertenece (solo autores) */
+  subtitulo: string | null;
+  verificado: boolean;
+  credibilidad: CredibilidadAgregada;
+};
+
+/** Medios y autores con su credibilidad, del índice más alto al más bajo. */
+export async function obtenerRankingCredibilidad(): Promise<{
+  medios: FilaRanking[];
+  autores: FilaRanking[];
+}> {
+  const supabase = clientePublico();
+  const [medios, autores, credMedios, credAutores] = await Promise.all([
+    supabase.from("medios").select("id, nombre, dominio, verificado"),
+    supabase.from("autores").select("id, nombre, medio:medios ( nombre, verificado )"),
+    supabase.from("credibilidad_medios").select("*"),
+    supabase.from("credibilidad_autores").select("*"),
+  ]);
+  lanzar(medios.error ?? autores.error ?? credMedios.error ?? credAutores.error, "ranking de credibilidad");
+
+  const porMedio = new Map((credMedios.data ?? []).map((c) => [c.medio_id, c]));
+  const porAutor = new Map((credAutores.data ?? []).map((c) => [c.autor_id, c]));
+
+  const indice = (f: FilaRanking) => {
+    const c = f.credibilidad.calificacion;
+    return c ? (c.fuente + c.contenido + c.contexto) / 3 : -1;
+  };
+  // Primero los que alcanzan el mínimo (por índice); después el resto
+  const ordenar = (filas: FilaRanking[]) =>
+    filas.sort((a, b) => {
+      const ea = a.credibilidad.totalNoticias >= MINIMO_PARA_RANKING ? 1 : 0;
+      const eb = b.credibilidad.totalNoticias >= MINIMO_PARA_RANKING ? 1 : 0;
+      return eb - ea || indice(b) - indice(a) || a.nombre.localeCompare(b.nombre, "es");
+    });
+
+  return {
+    medios: ordenar(
+      (medios.data ?? []).map((m) => ({
+        id: m.id,
+        nombre: m.nombre,
+        subtitulo: m.dominio,
+        verificado: m.verificado,
+        credibilidad: aCredibilidad(porMedio.get(m.id) ?? null),
+      })),
+    ),
+    autores: ordenar(
+      (autores.data ?? [])
+        .filter((a) => porAutor.has(a.id))
+        .map((a) => ({
+          id: a.id,
+          nombre: a.nombre,
+          subtitulo: a.medio?.nombre ?? null,
+          verificado: false,
+          credibilidad: aCredibilidad(porAutor.get(a.id) ?? null),
+        })),
+    ),
+  };
 }
 
 export async function obtenerCategoria(slug: string): Promise<Categoria | null> {

@@ -21,7 +21,7 @@ export default async function PaginaSeccion({ params }: PageProps<"/seccion/[slu
   const { slug } = await params;
   const [categoria, noticias] = await Promise.all([
     obtenerCategoria(slug),
-    obtenerFeed({ categoria: slug, limite: 40 }),
+    obtenerFeed({ categoria: slug }),
   ]);
   if (!categoria) notFound();
 
@@ -29,6 +29,7 @@ export default async function PaginaSeccion({ params }: PageProps<"/seccion/[slu
     <ListaNoticias
       encabezado={<EncabezadoPagina antetitulo="Sección" titulo={categoria.nombre} />}
       noticias={noticias}
+      mas={{ categoria: slug }}
       vacio={`Todavía no hay noticias en ${categoria.nombre}.`}
     />
   );

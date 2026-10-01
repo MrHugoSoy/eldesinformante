@@ -25,7 +25,7 @@ export default async function PaginaAutor({ params }: PageProps<"/autor/[id]">) 
   if (!esUuid(id)) notFound();
   const [datos, noticias] = await Promise.all([
     obtenerAutor(id),
-    obtenerFeed({ autorId: id, limite: 40 }),
+    obtenerFeed({ autorId: id }),
   ]);
   if (!datos) notFound();
   const { autor, credibilidad } = datos;
@@ -47,6 +47,7 @@ export default async function PaginaAutor({ params }: PageProps<"/autor/[id]">) 
         </EncabezadoPagina>
       }
       noticias={noticias}
+      mas={{ autorId: id }}
       vacio="Este autor todavía no tiene noticias publicadas."
     />
   );

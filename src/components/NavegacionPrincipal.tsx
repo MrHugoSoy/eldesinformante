@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bookmark, House, Newspaper, Plus, Search, Star, UserRound } from "lucide-react";
+import { Bookmark, House, Newspaper, Plus, Search, Star, Trophy, UserRound } from "lucide-react";
 import { secciones } from "@/lib/estatico";
 import { esActivo } from "./MenuSecciones";
 
 const enlaces = [
   { href: "/", texto: "Inicio", icono: House },
   { href: "/noticias", texto: "Noticias", icono: Newspaper },
+  { href: "/medios", texto: "Ranking de medios", icono: Trophy },
   { href: "/buscar", texto: "Buscar", icono: Search },
   { href: "/guardados", texto: "Guardados", icono: Bookmark },
   { href: "/perfil", texto: "Mi perfil", icono: UserRound },

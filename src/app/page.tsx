@@ -1,3 +1,4 @@
+import { CargarMas } from "@/components/CargarMas";
 import { NavegacionPrincipal } from "@/components/NavegacionPrincipal";
 import { SidebarDerecho } from "@/components/SidebarDerecho";
 import { NoticiaDestacada, TarjetaNoticia } from "@/components/TarjetaNoticia";
@@ -7,6 +8,7 @@ import {
   obtenerRanking,
   obtenerTendencias,
   obtenerUsuariosDestacados,
+  POR_PAGINA,
 } from "@/lib/datos";
 
 // La portada se regenera como máximo cada 60 segundos con datos de Supabase.
@@ -42,6 +44,13 @@ export default async function Home() {
           {resto.map((n) => (
             <TarjetaNoticia key={n.id} noticia={n} />
           ))}
+          {noticias.length >= POR_PAGINA && (
+            <CargarMas
+              filtros={{ destacadaPrimero: true }}
+              desde={noticias.length}
+              porPagina={POR_PAGINA}
+            />
+          )}
         </div>
         <SidebarDerecho enPortada={enPortada} ranking={ranking} destacados={destacados} tendencias={tendencias} />
       </main>

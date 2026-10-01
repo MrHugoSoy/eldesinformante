@@ -1,5 +1,8 @@
 import type { ReactNode } from "react";
+import type { FiltrosLista } from "@/app/acciones-feed";
+import { POR_PAGINA } from "@/lib/datos";
 import type { Noticia } from "@/lib/types";
+import { CargarMas } from "./CargarMas";
 import { TarjetaNoticia } from "./TarjetaNoticia";
 
 /** Columna de página interna: encabezado + lista de tarjetas de noticia. */
@@ -7,10 +10,13 @@ export function ListaNoticias({
   encabezado,
   noticias,
   vacio = "No hay noticias publicadas todavía.",
+  mas,
 }: {
   encabezado: ReactNode;
   noticias: Noticia[];
   vacio?: string;
+  /** Si se indica, muestra "Cargar más" con esos filtros (la lista debe venir con POR_PAGINA) */
+  mas?: FiltrosLista;
 }) {
   return (
     <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-5 px-4 py-6 sm:py-8">
@@ -21,6 +27,9 @@ export function ListaNoticias({
         </p>
       ) : (
         noticias.map((n) => <TarjetaNoticia key={n.id} noticia={n} />)
+      )}
+      {mas && noticias.length >= POR_PAGINA && (
+        <CargarMas filtros={mas} desde={noticias.length} porPagina={POR_PAGINA} />
       )}
     </main>
   );

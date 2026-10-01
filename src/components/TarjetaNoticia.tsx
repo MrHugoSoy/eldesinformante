@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { Foto } from "@/components/Foto";
 import Link from "next/link";
 import type { Noticia } from "@/lib/types";
 import { AccionesNoticia } from "./AccionesNoticia";
@@ -34,7 +34,7 @@ export function NoticiaDestacada({ noticia }: { noticia: Noticia }) {
     <article className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
       <div className="relative flex min-h-[380px] flex-col justify-end sm:min-h-[440px]">
         {noticia.imagen && (
-          <Image
+          <Foto
             src={noticia.imagen}
             alt=""
             fill
@@ -78,7 +78,7 @@ export function TarjetaNoticia({ noticia }: { noticia: Noticia }) {
           className="relative aspect-square w-24 shrink-0 self-start overflow-hidden rounded-lg bg-slate-100 sm:aspect-[16/10] sm:w-56 md:w-64"
         >
           {noticia.imagen && (
-            <Image
+            <Foto
               src={noticia.imagen}
               alt=""
               fill

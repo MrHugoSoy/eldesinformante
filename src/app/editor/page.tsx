@@ -15,7 +15,7 @@ export default async function ResumenEditor() {
   const [
     publicadas,
     borradores,
-    publicadasSemana,
+    importadasPorRevisar,
     calificaciones,
     notasNuevas,
     notasOcultas,
@@ -24,7 +24,7 @@ export default async function ResumenEditor() {
   ] = await Promise.all([
     contar(supabase.from("noticias").select("*", { count: "exact", head: true }).eq("estado", "publicada")),
     contar(supabase.from("noticias").select("*", { count: "exact", head: true }).eq("estado", "borrador")),
-    contar(supabase.from("noticias").select("*", { count: "exact", head: true }).eq("estado", "publicada").gte("publicado_en", semana)),
+    contar(supabase.from("noticias").select("*", { count: "exact", head: true }).eq("estado", "borrador").not("fuente_rss_id", "is", null)),
     contar(supabase.from("calificaciones").select("*", { count: "exact", head: true }).gte("creado_en", semana)),
     contar(supabase.from("notas_comunidad").select("*", { count: "exact", head: true }).gte("creado_en", semana)),
     contar(supabase.from("notas_comunidad").select("*", { count: "exact", head: true }).eq("estado", "oculta")),
@@ -35,7 +35,12 @@ export default async function ResumenEditor() {
   const tarjetas = [
     { valor: publicadas, texto: "noticias publicadas", href: "/editor/noticias?estado=publicada" },
     { valor: borradores, texto: "borradores", href: "/editor/noticias?estado=borrador" },
-    { valor: publicadasSemana, texto: "publicadas esta semana" },
+    {
+      valor: importadasPorRevisar,
+      texto: "importadas por revisar",
+      href: "/editor/noticias?estado=importadas",
+      alerta: importadasPorRevisar > 0,
+    },
     { valor: calificaciones, texto: "calificaciones (7 días)" },
     { valor: notasNuevas, texto: "notas nuevas (7 días)", href: "/editor/moderacion" },
     { valor: notasOcultas, texto: "notas ocultas", href: "/editor/moderacion", alerta: notasOcultas > 0 },

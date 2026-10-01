@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Image from "next/image";
+import { Foto } from "@/components/Foto";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ExternalLink, Users } from "lucide-react";
@@ -70,7 +70,7 @@ export default async function PaginaNoticia({ params }: PageProps<"/noticia/[slu
 
         {noticia.imagen && (
           <div className="relative aspect-[16/9]">
-            <Image
+            <Foto
               src={noticia.imagen}
               alt={noticia.titulo}
               fill
@@ -95,21 +95,41 @@ export default async function PaginaNoticia({ params }: PageProps<"/noticia/[slu
         )}
 
         <div className="flex flex-col gap-4 px-5 py-6 text-[17px] leading-relaxed text-slate-800 sm:px-8">
-          {parrafos.length > 0 ? (
-            parrafos.map((p, i) => <p key={i}>{p}</p>)
-          ) : (
+          {parrafos.map((p, i) => (
+            <p key={i}>{p}</p>
+          ))}
+          {parrafos.length === 0 && !noticia.urlOriginal && (
             <p className="text-slate-500">Esta noticia todavía no tiene texto completo.</p>
           )}
-          {noticia.urlOriginal && (
-            <a
-              href={noticia.urlOriginal}
-              target="_blank"
-              rel="noopener noreferrer nofollow"
-              className="flex items-center gap-1.5 text-sm font-semibold text-acento hover:underline"
-            >
-              Leer la publicación original <ExternalLink className="size-4" />
-            </a>
-          )}
+          {noticia.urlOriginal &&
+            (parrafos.length === 0 ? (
+              // Nota de un medio: aquí solo va el resumen; el texto completo está en su sitio
+              <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-base">
+                <p className="text-slate-700">
+                  Esta nota fue publicada por <strong>{noticia.autor.medio.nombre}</strong>. Aquí
+                  puedes calificar su credibilidad y aportar contexto; el texto completo está en su
+                  sitio.
+                </p>
+                <a
+                  href={noticia.urlOriginal}
+                  target="_blank"
+                  rel="noopener noreferrer nofollow"
+                  className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-acento px-4 py-2 text-sm font-semibold text-white hover:bg-acento-oscuro"
+                >
+                  Leer la nota completa en {noticia.autor.medio.nombre}
+                  <ExternalLink className="size-4" />
+                </a>
+              </div>
+            ) : (
+              <a
+                href={noticia.urlOriginal}
+                target="_blank"
+                rel="noopener noreferrer nofollow"
+                className="flex items-center gap-1.5 text-sm font-semibold text-acento hover:underline"
+              >
+                Leer la publicación original <ExternalLink className="size-4" />
+              </a>
+            ))}
         </div>
 
         <PanelCalificar noticiaId={noticia.id} slug={noticia.slug} />

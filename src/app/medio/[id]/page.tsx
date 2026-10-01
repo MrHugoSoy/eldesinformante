@@ -24,7 +24,7 @@ export default async function PaginaMedio({ params }: PageProps<"/medio/[id]">) 
   if (!esUuid(id)) notFound();
   const [datos, noticias] = await Promise.all([
     obtenerMedio(id),
-    obtenerFeed({ medioId: id, limite: 40 }),
+    obtenerFeed({ medioId: id }),
   ]);
   if (!datos) notFound();
   const { medio, credibilidad } = datos;
@@ -49,6 +49,7 @@ export default async function PaginaMedio({ params }: PageProps<"/medio/[id]">) 
         </EncabezadoPagina>
       }
       noticias={noticias}
+      mas={{ medioId: id }}
       vacio="Este medio todavía no tiene noticias publicadas."
     />
   );

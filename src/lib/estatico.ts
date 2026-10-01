@@ -20,6 +20,7 @@ export const menuPrincipal: { href: string; nombre: string }[] = [
   { href: "/", nombre: "Inicio" },
   { href: "/noticias", nombre: "Noticias" },
   ...secciones.map((s) => ({ href: `/seccion/${s.slug}`, nombre: s.nombre })),
+  { href: "/medios", nombre: "Medios" },
 ];
 
 /** Cómo se ganan puntos de reputación. */

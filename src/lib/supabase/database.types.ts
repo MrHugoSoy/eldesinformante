@@ -247,6 +247,54 @@ export type Database = {
           },
         ]
       }
+      fuentes_rss: {
+        Row: {
+          activa: boolean
+          categoria_slug: string
+          creado_en: string
+          id: string
+          medio_id: string
+          ultima_revision: string | null
+          ultimo_resultado: string | null
+          url: string
+        }
+        Insert: {
+          activa?: boolean
+          categoria_slug: string
+          creado_en?: string
+          id?: string
+          medio_id: string
+          ultima_revision?: string | null
+          ultimo_resultado?: string | null
+          url: string
+        }
+        Update: {
+          activa?: boolean
+          categoria_slug?: string
+          creado_en?: string
+          id?: string
+          medio_id?: string
+          ultima_revision?: string | null
+          ultimo_resultado?: string | null
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fuentes_rss_categoria_slug_fkey"
+            columns: ["categoria_slug"]
+            isOneToOne: false
+            referencedRelation: "categorias"
+            referencedColumns: ["slug"]
+          },
+          {
+            foreignKeyName: "fuentes_rss_medio_id_fkey"
+            columns: ["medio_id"]
+            isOneToOne: false
+            referencedRelation: "medios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       guardados: {
         Row: {
           creado_en: string
@@ -499,6 +547,7 @@ export type Database = {
           creado_por: string | null
           destacada: boolean
           estado: string
+          fuente_rss_id: string | null
           id: string
           imagen_url: string | null
           publicado_en: string
@@ -517,6 +566,7 @@ export type Database = {
           creado_por?: string | null
           destacada?: boolean
           estado?: string
+          fuente_rss_id?: string | null
           id?: string
           imagen_url?: string | null
           publicado_en?: string
@@ -535,6 +585,7 @@ export type Database = {
           creado_por?: string | null
           destacada?: boolean
           estado?: string
+          fuente_rss_id?: string | null
           id?: string
           imagen_url?: string | null
           publicado_en?: string

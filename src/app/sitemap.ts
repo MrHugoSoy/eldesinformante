@@ -18,6 +18,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [
     { url: BASE, changeFrequency: "hourly", priority: 1 },
     { url: `${BASE}/noticias`, changeFrequency: "hourly", priority: 0.8 },
+    { url: `${BASE}/medios`, changeFrequency: "daily", priority: 0.8 },
     { url: `${BASE}/como-calificamos`, changeFrequency: "monthly", priority: 0.5 },
     ...secciones.map((s) => ({
       url: `${BASE}/seccion/${s.slug}`,
