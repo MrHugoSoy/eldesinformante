@@ -856,6 +856,10 @@ export type Database = {
       }
     }
     Functions: {
+      noticias_relacionadas: {
+        Args: { p_limite?: number; p_noticia: string }
+        Returns: { coincidencias: number; id: string }[]
+      }
       editor_estado_nota: {
         Args: { p_estado: string; p_nota: string }
         Returns: undefined

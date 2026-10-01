@@ -13,6 +13,7 @@ import { SeccionComentarios } from "@/components/interaccion/SeccionComentarios"
 import { LateralNoticia } from "@/components/LateralNoticia";
 import { SelloCredibilidad } from "@/components/SelloCredibilidad";
 import { NotasComunidad } from "@/components/NotasComunidad";
+import { OtrasVersiones } from "@/components/OtrasVersiones";
 import { obtenerNoticia } from "@/lib/datos";
 import { REDES } from "@/lib/redes";
 
@@ -161,6 +162,8 @@ export default async function PaginaNoticia({ params }: PageProps<"/noticia/[slu
         </div>
         <AccionesNoticia noticiaId={noticia.id} slug={noticia.slug} titulo={noticia.titulo} likes={noticia.likes} comentarios={noticia.comentarios} />
       </article>
+
+      <OtrasVersiones noticiaId={noticia.id} />
 
       <SeccionComentarios
         comentarios={noticia.listaComentarios}

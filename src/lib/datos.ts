@@ -249,6 +249,24 @@ export async function obtenerNoticia(slug: string): Promise<NoticiaCompleta | nu
   };
 }
 
+/**
+ * "Qué dicen otros medios": noticias de otro medio sobre el mismo hecho,
+ * de la más parecida a la menos (ver la función noticias_relacionadas en Supabase).
+ */
+export async function obtenerOtrasVersiones(noticiaId: string, limite = 4): Promise<Noticia[]> {
+  const { data, error } = await clientePublico().rpc("noticias_relacionadas", {
+    p_noticia: noticiaId,
+    p_limite: limite,
+  });
+  lanzar(error, "otras versiones");
+  const ids = (data ?? []).map((r) => r.id);
+  if (!ids.length) return [];
+
+  const noticias = await obtenerFeed({ ids, limite });
+  // obtenerFeed ordena por fecha; aquí importa el orden por parecido
+  return noticias.sort((a, b) => ids.indexOf(a.id) - ids.indexOf(b.id));
+}
+
 /** Quita acentos para que la búsqueda coincida con el índice (que también los quita). */
 function sinAcentos(texto: string) {
   return texto.normalize("NFD").replace(/\p{Diacritic}/gu, "");
