@@ -1,22 +1,41 @@
-import { Foto } from "@/components/Foto";
 import Link from "next/link";
+import { ChevronRight, ShieldCheck } from "lucide-react";
 import type { Noticia } from "@/lib/types";
 import { AccionesNoticia } from "./AccionesNoticia";
-import { BarraCredibilidad } from "./BarraCredibilidad";
 import { Byline } from "./Byline";
 import { EtiquetaCategoria } from "./EtiquetaCategoria";
-import { ResumenNotas } from "./ResumenNotas";
+import { Foto } from "./Foto";
 import { SelloCredibilidad } from "./SelloCredibilidad";
 
-/** Parte inferior común: credibilidad por eje, resumen de notas y acciones. */
+/**
+ * Parte inferior común. En el feed va todo en una línea: los tres ejes, cuántas notas hay
+ * y el enlace para verificar. El detalle completo está en la página de la noticia.
+ */
 function PieTarjeta({ noticia }: { noticia: Noticia }) {
+  const c = noticia.calificacion;
+  const notas = noticia.notas.length;
   return (
     <>
-      <BarraCredibilidad
-        calificacion={noticia.calificacion}
-        enlaceVerificar={`/noticia/${noticia.slug}#verificar`}
-      />
-      <ResumenNotas notas={noticia.notas} slug={noticia.slug} />
+      <Link
+        href={`/noticia/${noticia.slug}#verificar`}
+        className="flex flex-wrap items-center gap-x-2 gap-y-0.5 border-t border-slate-200 bg-slate-50/60 px-4 py-2 text-xs text-slate-600 hover:text-acento"
+      >
+        <ShieldCheck className="size-4 shrink-0 text-acento" />
+        {c ? (
+          <span>
+            Fuente <strong>{c.fuente.toFixed(1)}</strong> · Contenido{" "}
+            <strong>{c.contenido.toFixed(1)}</strong> · Contexto <strong>{c.contexto.toFixed(1)}</strong>
+          </span>
+        ) : (
+          <span>Aún sin calificar</span>
+        )}
+        <span>
+          · {notas} {notas === 1 ? "nota" : "notas"}
+        </span>
+        <span className="ml-auto flex items-center font-semibold text-acento">
+          Verificar <ChevronRight className="size-3.5" />
+        </span>
+      </Link>
       <AccionesNoticia
         noticiaId={noticia.id}
         slug={noticia.slug}
@@ -55,7 +74,9 @@ export function NoticiaDestacada({ noticia }: { noticia: Noticia }) {
               {noticia.titulo}
             </Link>
           </h1>
-          <p className="mt-3 max-w-xl text-sm text-slate-200 sm:text-base">{noticia.resumen}</p>
+          <p className="mt-3 line-clamp-3 max-w-xl text-sm text-slate-200 sm:text-base">
+            {noticia.resumen}
+          </p>
           <div className="mt-5">
             <Byline noticia={noticia} claro />
           </div>
@@ -102,7 +123,7 @@ export function TarjetaNoticia({ noticia }: { noticia: Noticia }) {
               {noticia.titulo}
             </Link>
           </h2>
-          <p className="line-clamp-2 text-sm text-slate-600 sm:line-clamp-none">{noticia.resumen}</p>
+          <p className="line-clamp-2 text-sm text-slate-600">{noticia.resumen}</p>
           <div className="mt-auto pt-1">
             <Byline noticia={noticia} />
           </div>
