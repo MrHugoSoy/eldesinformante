@@ -9,6 +9,8 @@ import { Byline } from "@/components/Byline";
 import { EtiquetaCategoria } from "@/components/EtiquetaCategoria";
 import { PanelCalificar } from "@/components/interaccion/PanelCalificar";
 import { SeccionComentarios } from "@/components/interaccion/SeccionComentarios";
+import { LateralNoticia } from "@/components/LateralNoticia";
+import { SelloCredibilidad } from "@/components/SelloCredibilidad";
 import { NotasComunidad } from "@/components/NotasComunidad";
 import { obtenerNoticia } from "@/lib/datos";
 
@@ -47,12 +49,16 @@ export default async function PaginaNoticia({ params }: PageProps<"/noticia/[slu
   const parrafos = (noticia.contenido ?? "").split(/\n\s*\n/).filter(Boolean);
 
   return (
-    <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-6 sm:py-8">
+    <main className="mx-auto grid w-full max-w-6xl flex-1 gap-5 px-4 py-6 sm:py-8 lg:grid-cols-[minmax(0,1fr)_320px]">
+      <div className="min-w-0">
       <article className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
         <header className="p-5 sm:p-8">
-          <Link href={`/seccion/${noticia.categoria.slug}`}>
-            <EtiquetaCategoria categoria={noticia.categoria} />
-          </Link>
+          <div className="flex flex-wrap items-center gap-2">
+            <Link href={`/seccion/${noticia.categoria.slug}`}>
+              <EtiquetaCategoria categoria={noticia.categoria} />
+            </Link>
+            <SelloCredibilidad calificacion={noticia.calificacion} />
+          </div>
           <h1 className="mt-3 font-serif text-3xl font-bold leading-tight text-slate-900 sm:text-4xl">
             {noticia.titulo}
           </h1>
@@ -66,10 +72,10 @@ export default async function PaginaNoticia({ params }: PageProps<"/noticia/[slu
           <div className="relative aspect-[16/9]">
             <Image
               src={noticia.imagen}
-              alt=""
+              alt={noticia.titulo}
               fill
               preload
-              sizes="(min-width: 768px) 768px, 100vw"
+              sizes="(min-width: 1024px) 800px, 100vw"
               className="object-cover"
             />
           </div>
@@ -81,7 +87,10 @@ export default async function PaginaNoticia({ params }: PageProps<"/noticia/[slu
             <Users className="size-3.5" />
             Calificada por {noticia.totalCalificaciones}{" "}
             {noticia.totalCalificaciones === 1 ? "persona" : "personas"}. El voto del equipo
-            editorial y de usuarios con más reputación pesa más.
+            editorial y de usuarios con más reputación pesa más.{" "}
+            <Link href="/como-calificamos" className="font-semibold text-acento hover:underline">
+              Cómo calificamos
+            </Link>
           </p>
         )}
 
@@ -116,6 +125,11 @@ export default async function PaginaNoticia({ params }: PageProps<"/noticia/[slu
         noticiaId={noticia.id}
         slug={noticia.slug}
       />
+      </div>
+
+      <div className="lg:sticky lg:top-20 lg:h-fit">
+        <LateralNoticia noticia={noticia} />
+      </div>
     </main>
   );
 }

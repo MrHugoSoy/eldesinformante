@@ -1,13 +1,13 @@
 import Link from "next/link";
 import { BadgeCheck, Clock, Plus, ShieldCheck } from "lucide-react";
+import { UTILES_PARA_VERIFICAR } from "@/lib/credibilidad";
 import type { NotaComunidad } from "@/lib/types";
 import { Avatar } from "./Avatar";
 import { FormNota } from "./interaccion/FormNota";
 import { NombreUsuario } from "./NombreUsuario";
 import { BotonesVoto, ProveedorVotos } from "./interaccion/VotosNota";
 
-/** Votos "útil" que necesita una nota para considerarse verificada por la comunidad. */
-export const UTILES_PARA_VERIFICAR = 3;
+export { UTILES_PARA_VERIFICAR };
 
 /** "https://www.ejemplo.org/ruta/" → "ejemplo.org/ruta" */
 function urlCorta(url: string) {
@@ -16,11 +16,11 @@ function urlCorta(url: string) {
 
 function EtiquetaEstado({ nota }: { nota: NotaComunidad }) {
   return nota.utilPara >= UTILES_PARA_VERIFICAR ? (
-    <span className="flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-700">
+    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-700">
       <BadgeCheck className="size-3" /> Verificada por la comunidad
     </span>
   ) : (
-    <span className="flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-700">
+    <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-700">
       <Clock className="size-3" /> En revisión
     </span>
   );

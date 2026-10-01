@@ -21,10 +21,8 @@ const columnas = [
   {
     titulo: "Sobre nosotros",
     enlaces: [
-      ...["Nuestra historia", "Cómo calificamos", "Código de ética"].map((texto) => ({
-        texto,
-        href: "#",
-      })),
+      { texto: "Cómo calificamos", href: "/como-calificamos" },
+      ...["Nuestra historia", "Código de ética"].map((texto) => ({ texto, href: "#" })),
       { texto: "Contacto", href: `mailto:${CORREO_CONTACTO}` },
     ],
   },

@@ -4,7 +4,8 @@ import { ShieldCheck } from "lucide-react";
 export function Logo({ subtitulo = true }: { subtitulo?: boolean }) {
   return (
     <Link href="/" className="flex shrink-0 items-center gap-2 text-white sm:gap-2.5">
-      <span className="flex size-8 shrink-0 items-center sm:size-9 justify-center rounded-full bg-white/10 ring-2 ring-white/80">
+      {/* En pantallas muy angostas se oculta el escudo para que quepa el buscador */}
+      <span className="hidden size-8 shrink-0 items-center justify-center rounded-full bg-white/10 ring-2 ring-white/80 min-[400px]:flex sm:size-9">
         <ShieldCheck className="size-5" />
       </span>
       <span className="leading-tight">

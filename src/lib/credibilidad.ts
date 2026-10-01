@@ -45,6 +45,17 @@ export function indiceCredibilidad(c: Calificacion): number {
   return Math.round(((c.fuente + c.contenido + c.contexto) / 3) * 10) / 10;
 }
 
+/** Votos "útil" que necesita una nota para considerarse verificada por la comunidad. */
+export const UTILES_PARA_VERIFICAR = 3;
+
+/** Veredicto en una palabra a partir del índice global. */
+export function veredicto(indice: number): string {
+  if (indice >= 4.5) return "Muy confiable";
+  if (indice >= 4) return "Confiable";
+  if (indice >= 3) return "Con reservas";
+  return "Dudosa";
+}
+
 /** Niveles de reputación de usuario según puntos acumulados. */
 export const nivelesReputacion = [
   { nombre: "Novato", desde: 0 },

@@ -35,7 +35,7 @@ export function Header() {
           <Link
             href="/buscar"
             aria-label="Buscar"
-            className="hidden rounded-full p-2 hover:bg-white/10 min-[400px]:block md:hidden xl:block 2xl:hidden"
+            className="rounded-full p-2 hover:bg-white/10 md:hidden xl:block 2xl:hidden"
           >
             <Search className="size-5" />
           </Link>

@@ -13,7 +13,7 @@ import { TuReputacion } from "./TuReputacion";
 
 function EnLaPortada({ noticias }: { noticias: Noticia[] }) {
   return (
-    <TarjetaLateral titulo="En la portada">
+    <TarjetaLateral titulo="Más populares">
       <ul className="flex flex-col gap-4">
         {noticias.map((n) => (
           <li key={n.id}>
