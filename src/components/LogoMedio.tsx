@@ -68,7 +68,8 @@ export function LogoMedio({
         height={t.px}
         unoptimized
         onError={() => setFallo(true)}
-        className="size-full object-contain p-0.5"
+        // El ícono propio llena el círculo; los de otros medios llevan margen para no recortarlos
+        className={src === "/icon.svg" ? "size-full object-cover" : "size-full object-contain p-0.5"}
       />
     </span>
   );

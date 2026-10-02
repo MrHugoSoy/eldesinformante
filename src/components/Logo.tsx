@@ -1,22 +1,18 @@
-﻿import Link from "next/link";
-import { ShieldCheck } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
 
-export function Logo({ subtitulo = true }: { subtitulo?: boolean }) {
+/** El logo tiene letras blancas: solo va sobre fondos oscuros (header y footer). */
+export function Logo() {
   return (
-    <Link href="/" className="flex shrink-0 items-center gap-2 text-white sm:gap-2.5">
-      <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-white/10 ring-2 ring-white/80 sm:size-9">
-        <ShieldCheck className="size-5" />
-      </span>
-      <span className="leading-tight">
-        <span className="block whitespace-nowrap font-serif text-base font-bold sm:text-xl">
-          El Desinformante
-        </span>
-        {subtitulo && (
-          <span className="hidden text-[11px] text-slate-300 sm:block">
-            Noticias con credibilidad
-          </span>
-        )}
-      </span>
+    <Link href="/" className="flex shrink-0 items-center">
+      <Image
+        src="/ED.svg"
+        alt="El Desinformante"
+        width={418}
+        height={51}
+        preload
+        className="h-auto w-[196px] sm:w-[229px]"
+      />
     </Link>
   );
 }
