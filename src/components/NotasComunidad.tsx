@@ -3,7 +3,6 @@ import { BadgeCheck, Clock, Plus, ShieldCheck } from "lucide-react";
 import { UTILES_PARA_VERIFICAR } from "@/lib/credibilidad";
 import type { NotaComunidad } from "@/lib/types";
 import { Avatar } from "./Avatar";
-import { FormNota } from "./interaccion/FormNota";
 import { NombreUsuario } from "./NombreUsuario";
 import { BotonesVoto, ProveedorVotos } from "./interaccion/VotosNota";
 
@@ -29,7 +28,7 @@ function EtiquetaEstado({ nota }: { nota: NotaComunidad }) {
 /**
  * Notas de la comunidad.
  * - Sin `noticiaId`: resumen de solo lectura (portada y listas); "Aportar nota" lleva a la noticia.
- * - Con `noticiaId`: versión completa con votos y formulario (página de la noticia).
+ * - Con `noticiaId`: lista con votos (página de la noticia); el formulario está en PanelesNoticia.
  */
 export function NotasComunidad({
   notas,
@@ -90,7 +89,7 @@ export function NotasComunidad({
   );
 
   return (
-    <section id={interactivo ? "aportar-nota" : undefined} className="scroll-mt-20 px-4 py-3">
+    <section className="px-4 py-3">
       <div className="mb-2 flex items-center justify-between gap-2">
         <h3 className="flex items-center gap-2 font-serif text-sm font-semibold text-slate-900 sm:text-base">
           <ShieldCheck className="size-5 text-acento" />
@@ -116,15 +115,6 @@ export function NotasComunidad({
         lista
       )}
 
-      {interactivo && (
-        <div className="mt-4">
-          <FormNota
-            noticiaId={noticiaId!}
-            slug={slug}
-            yaAporto={notas.map((n) => n.autor.id)}
-          />
-        </div>
-      )}
     </section>
   );
 }

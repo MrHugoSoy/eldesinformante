@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
-import { ShieldCheck } from "lucide-react";
 import { borrarCalificacion, calificarNoticia } from "@/app/noticia/acciones";
 import { clienteNavegador } from "@/lib/supabase/navegador";
 import { useSesion } from "../Sesion";
@@ -29,7 +28,16 @@ const ejes = [
 type Valores = { fuente: number; contenido: number; contexto: number };
 const vacio: Valores = { fuente: 0, contenido: 0, contexto: 0 };
 
-export function PanelCalificar({ noticiaId, slug }: { noticiaId: string; slug: string }) {
+export function PanelCalificar({
+  noticiaId,
+  slug,
+  alCambiar,
+}: {
+  noticiaId: string;
+  slug: string;
+  /** Avisa si este usuario tiene o no una calificación guardada */
+  alCambiar?: (calificada: boolean) => void;
+}) {
   const { perfil } = useSesion();
   const [valores, setValores] = useState<Valores>(vacio);
   const [guardada, setGuardada] = useState<Valores | null>(null);
@@ -49,9 +57,10 @@ export function PanelCalificar({ noticiaId, slug }: { noticiaId: string; slug: s
         if (data) {
           setValores(data);
           setGuardada(data);
+          alCambiar?.(true);
         }
       });
-  }, [perfil, noticiaId]);
+  }, [perfil, noticiaId, alCambiar]);
 
   const completo = valores.fuente > 0 && valores.contenido > 0 && valores.contexto > 0;
   const sinCambios =
@@ -66,6 +75,7 @@ export function PanelCalificar({ noticiaId, slug }: { noticiaId: string; slug: s
       const r = await calificarNoticia(noticiaId, slug, valores);
       if (r.error) return setMensaje({ tipo: "error", texto: r.error });
       setGuardada(valores);
+      alCambiar?.(true);
       setMensaje({ tipo: "ok", texto: "¡Gracias! Tu calificación ya cuenta en el promedio." });
     });
   }
@@ -76,17 +86,15 @@ export function PanelCalificar({ noticiaId, slug }: { noticiaId: string; slug: s
       const r = await borrarCalificacion(noticiaId, slug);
       if (r.error) return setMensaje({ tipo: "error", texto: r.error });
       setGuardada(null);
+      alCambiar?.(false);
       setValores(vacio);
       setMensaje({ tipo: "ok", texto: "Borramos tu calificación." });
     });
   }
 
   return (
-    <section id="verificar" className="scroll-mt-20 border-t border-slate-200 px-5 py-6 sm:px-8">
-      <h2 className="flex items-center gap-2 font-serif text-xl font-semibold text-slate-900">
-        <ShieldCheck className="size-6 text-acento" /> Verifica la noticia
-      </h2>
-      <p className="mt-1 mb-4 text-sm text-slate-600">
+    <div>
+      <p className="mb-4 text-sm text-slate-600">
         Califica cada aspecto de 1 a 5. Tu voto pesa más mientras más reputación tengas.
       </p>
 
@@ -144,6 +152,6 @@ export function PanelCalificar({ noticiaId, slug }: { noticiaId: string; slug: s
           )}
         </div>
       )}
-    </section>
+    </div>
   );
 }

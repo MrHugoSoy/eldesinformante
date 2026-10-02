@@ -8,7 +8,7 @@ import { BarraCredibilidad } from "@/components/BarraCredibilidad";
 import { Byline } from "@/components/Byline";
 import { EtiquetaCategoria } from "@/components/EtiquetaCategoria";
 import { EtiquetaRed } from "@/components/EtiquetaRed";
-import { PanelCalificar } from "@/components/interaccion/PanelCalificar";
+import { PanelesNoticia } from "@/components/interaccion/PanelesNoticia";
 import { SeccionComentarios } from "@/components/interaccion/SeccionComentarios";
 import { LateralNoticia } from "@/components/LateralNoticia";
 import { SelloCredibilidad } from "@/components/SelloCredibilidad";
@@ -155,11 +155,17 @@ export default async function PaginaNoticia({ params }: PageProps<"/noticia/[slu
             ))}
         </div>
 
-        <PanelCalificar noticiaId={noticia.id} slug={noticia.slug} />
+        <PanelesNoticia
+          noticiaId={noticia.id}
+          slug={noticia.slug}
+          yaAporto={noticia.notas.map((n) => n.autor.id)}
+        />
 
-        <div className="border-t border-slate-200 sm:px-4 sm:py-2">
-          <NotasComunidad notas={noticia.notas} slug={noticia.slug} noticiaId={noticia.id} />
-        </div>
+        {noticia.notas.length > 0 && (
+          <div className="border-t border-slate-200 sm:px-4 sm:py-2">
+            <NotasComunidad notas={noticia.notas} slug={noticia.slug} noticiaId={noticia.id} />
+          </div>
+        )}
         <AccionesNoticia noticiaId={noticia.id} slug={noticia.slug} titulo={noticia.titulo} likes={noticia.likes} comentarios={noticia.comentarios} />
       </article>
 

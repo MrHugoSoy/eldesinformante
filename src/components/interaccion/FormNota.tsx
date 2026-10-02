@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Plus } from "lucide-react";
 import { aportarNota } from "@/app/noticia/acciones";
 import { useSesion } from "../Sesion";
 import { InvitarEntrar } from "./InvitarEntrar";
@@ -13,14 +12,15 @@ export function FormNota({
   noticiaId,
   slug,
   yaAporto,
+  alCancelar,
 }: {
   noticiaId: string;
   slug: string;
   /** ids de autores de las notas visibles, para saber si este usuario ya aportó */
   yaAporto: string[];
+  alCancelar: () => void;
 }) {
   const { perfil } = useSesion();
-  const [abierto, setAbierto] = useState(false);
   const [texto, setTexto] = useState("");
   const [fuenteUrl, setFuenteUrl] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -45,17 +45,6 @@ export function FormNota({
           ? "¡Gracias! Tu nota ya está publicada y aparece como “En revisión” hasta que la comunidad la valide."
           : "Ya aportaste una nota en esta noticia. Solo se permite una por persona."}
       </p>
-    );
-  }
-
-  if (!abierto) {
-    return (
-      <button
-        onClick={() => setAbierto(true)}
-        className="flex items-center gap-1.5 rounded-lg border border-acento/40 px-4 py-2 text-sm font-semibold text-acento hover:bg-acento/5"
-      >
-        <Plus className="size-4" /> Aportar una nota
-      </button>
     );
   }
 
@@ -114,7 +103,7 @@ export function FormNota({
         >
           {pendiente ? "Publicando…" : "Publicar nota"}
         </button>
-        <button type="button" onClick={() => setAbierto(false)} className="text-sm text-slate-500 hover:underline">
+        <button type="button" onClick={alCancelar} className="text-sm text-slate-500 hover:underline">
           Cancelar
         </button>
       </div>
