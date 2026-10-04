@@ -285,6 +285,35 @@ export async function moderarComentarioEditor(
   return { ok: true };
 }
 
+/** Cierra los reportes pendientes de una nota o un comentario; "atendido" además oculta el contenido. */
+export async function resolverReportes(
+  contenido: { notaId: string } | { comentarioId: string },
+  estado: "atendido" | "descartado",
+): Promise<Resultado> {
+  const editor = await editorActual();
+  if (!editor) return { error: SIN_PERMISO };
+
+  if (estado === "atendido") {
+    const { error } =
+      "notaId" in contenido
+        ? await editor.supabase.rpc("editor_estado_nota", { p_nota: contenido.notaId, p_estado: "oculta" })
+        : await editor.supabase.rpc("editor_moderar_comentario", {
+            p_comentario: contenido.comentarioId,
+            p_oculto: true,
+          });
+    if (error) return { error: "No pudimos ocultar el contenido." };
+  }
+
+  const { error } = await editor.supabase.rpc("editor_resolver_reportes", {
+    ...("notaId" in contenido ? { p_nota: contenido.notaId } : { p_comentario: contenido.comentarioId }),
+    p_estado: estado,
+  });
+  if (error) return { error: "No pudimos cerrar los reportes." };
+  refrescarSitio(["/editor/moderacion"]);
+  revalidatePath("/u/[usuario]", "page");
+  return { ok: true };
+}
+
 // ---------------------------------------------------------------------
 // Fuentes RSS e importadas
 // ---------------------------------------------------------------------

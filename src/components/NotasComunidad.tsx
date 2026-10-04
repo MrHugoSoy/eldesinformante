@@ -3,6 +3,7 @@ import { BadgeCheck, Clock, Plus, ShieldCheck } from "lucide-react";
 import { UTILES_PARA_VERIFICAR } from "@/lib/credibilidad";
 import type { NotaComunidad } from "@/lib/types";
 import { Avatar } from "./Avatar";
+import { BotonReportar } from "./interaccion/BotonReportar";
 import { NombreUsuario } from "./NombreUsuario";
 import { BotonesVoto, ProveedorVotos } from "./interaccion/VotosNota";
 
@@ -72,7 +73,7 @@ export function NotasComunidad({
               )}
             </p>
             {interactivo && (
-              <div className="mt-2">
+              <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2">
                 <BotonesVoto
                   notaId={nota.id}
                   autorId={nota.autor.id}
@@ -80,6 +81,7 @@ export function NotasComunidad({
                   utiles={nota.utilPara}
                   noUtiles={nota.noUtilPara}
                 />
+                <BotonReportar contenido={{ notaId: nota.id }} autorId={nota.autor.id} />
               </div>
             )}
           </div>

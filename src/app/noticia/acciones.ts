@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { CODIGO_LIMITE, MENSAJE_LIMITE } from "@/lib/moderacion";
 import { clienteServidor } from "@/lib/supabase/servidor";
 
 export type Resultado = { ok?: boolean; error?: string };
@@ -49,7 +50,11 @@ export async function calificarNoticia(
     const { error: errorInsert } = await supabase
       .from("calificaciones")
       .insert({ noticia_id: noticiaId, fuente, contenido, contexto });
-    if (errorInsert) return { error: "No pudimos guardar tu calificación." };
+    if (errorInsert) {
+      return {
+        error: errorInsert.code === CODIGO_LIMITE ? MENSAJE_LIMITE : "No pudimos guardar tu calificación.",
+      };
+    }
   }
 
   refrescar(slug);
@@ -100,7 +105,9 @@ export async function aportarNota(
       error:
         error.code === "23505"
           ? "Ya aportaste una nota en esta noticia."
-          : "No pudimos publicar tu nota. Inténtalo de nuevo.",
+          : error.code === CODIGO_LIMITE
+            ? MENSAJE_LIMITE
+            : "No pudimos publicar tu nota. Inténtalo de nuevo.",
     };
   }
 
@@ -139,9 +146,12 @@ export async function votarNota(
         .insert({ nota_id: notaId, util });
       if (errorInsert) {
         return {
-          error: errorInsert.code === "42501"
-            ? "No puedes votar tu propia nota."
-            : "No pudimos registrar tu voto.",
+          error:
+            errorInsert.code === "42501"
+              ? "No puedes votar tu propia nota."
+              : errorInsert.code === CODIGO_LIMITE
+                ? MENSAJE_LIMITE
+                : "No pudimos registrar tu voto.",
         };
       }
     }

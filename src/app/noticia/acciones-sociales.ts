@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { CODIGO_LIMITE, esMotivoReporte, MENSAJE_LIMITE } from "@/lib/moderacion";
 import { clienteServidor } from "@/lib/supabase/servidor";
 import type { Resultado } from "./acciones";
 
@@ -60,7 +61,9 @@ export async function comentar(noticiaId: string, slug: string, texto: string): 
   if (!userId) return { error: SIN_SESION };
 
   const { error } = await supabase.from("comentarios").insert({ noticia_id: noticiaId, texto: v.texto });
-  if (error) return { error: "No pudimos publicar tu comentario." };
+  if (error) {
+    return { error: error.code === CODIGO_LIMITE ? MENSAJE_LIMITE : "No pudimos publicar tu comentario." };
+  }
 
   refrescar(slug);
   return { ok: true };
@@ -111,6 +114,34 @@ export async function moderarComentario(
   if (error) return { error: "No tienes permiso para moderar comentarios." };
 
   refrescar(slug);
+  revalidatePath("/editor/moderacion");
+  return { ok: true };
+}
+
+/** Avisa al equipo editorial de una nota o un comentario que incumple las reglas. */
+export async function reportar(
+  contenido: { notaId: string } | { comentarioId: string },
+  motivo: string,
+  detalle: string,
+): Promise<Resultado> {
+  if (!esMotivoReporte(motivo)) return { error: "Elige un motivo." };
+  const d = detalle.trim();
+  if (d.length > 300) return { error: "El detalle no puede pasar de 300 caracteres." };
+  const { supabase, userId } = await usuarioActual();
+  if (!userId) return { error: SIN_SESION };
+
+  const { error } = await supabase.from("reportes").insert({
+    ...("notaId" in contenido ? { nota_id: contenido.notaId } : { comentario_id: contenido.comentarioId }),
+    motivo,
+    detalle: d || null,
+  });
+  if (error) {
+    if (error.code === "23505") return { error: "Ya habías reportado esto. El equipo editorial lo revisará." };
+    if (error.code === "42501") return { error: "No puedes reportar tu propio contenido." };
+    if (error.code === CODIGO_LIMITE) return { error: MENSAJE_LIMITE };
+    return { error: "No pudimos enviar tu reporte." };
+  }
+
   revalidatePath("/editor/moderacion");
   return { ok: true };
 }

@@ -13,6 +13,7 @@ import type { Comentario } from "@/lib/types";
 import { Avatar } from "../Avatar";
 import { NombreUsuario } from "../NombreUsuario";
 import { useSesion } from "../Sesion";
+import { BotonReportar } from "./BotonReportar";
 import { InvitarEntrar } from "./InvitarEntrar";
 
 const campo =
@@ -92,8 +93,9 @@ function ItemComentario({ c, slug }: { c: Comentario; slug: string }) {
           <p className="mt-0.5 whitespace-pre-line text-slate-700">{c.texto}</p>
         )}
 
-        {(esMio || esEditor) && !editando && (
+        {perfil && !editando && (
           <div className="mt-1.5 flex flex-wrap gap-3">
+            <BotonReportar contenido={{ comentarioId: c.id }} autorId={c.autor.id} />
             {esMio && (
               <>
                 <button onClick={() => setEditando(true)} className={botonMini}>

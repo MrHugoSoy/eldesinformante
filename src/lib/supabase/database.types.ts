@@ -670,6 +670,71 @@ export type Database = {
         }
         Relationships: []
       }
+      reportes: {
+        Row: {
+          atendido_por: string | null
+          comentario_id: string | null
+          creado_en: string
+          detalle: string | null
+          estado: string
+          id: string
+          motivo: string
+          nota_id: string | null
+          usuario_id: string
+        }
+        Insert: {
+          atendido_por?: string | null
+          comentario_id?: string | null
+          creado_en?: string
+          detalle?: string | null
+          estado?: string
+          id?: string
+          motivo: string
+          nota_id?: string | null
+          usuario_id?: string
+        }
+        Update: {
+          atendido_por?: string | null
+          comentario_id?: string | null
+          creado_en?: string
+          detalle?: string | null
+          estado?: string
+          id?: string
+          motivo?: string
+          nota_id?: string | null
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reportes_atendido_por_fkey"
+            columns: ["atendido_por"]
+            isOneToOne: false
+            referencedRelation: "perfiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reportes_comentario_id_fkey"
+            columns: ["comentario_id"]
+            isOneToOne: false
+            referencedRelation: "comentarios"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reportes_nota_id_fkey"
+            columns: ["nota_id"]
+            isOneToOne: false
+            referencedRelation: "notas_comunidad"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reportes_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "perfiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       votos_nota: {
         Row: {
           creado_en: string
@@ -870,6 +935,10 @@ export type Database = {
       }
       editor_moderar_comentario: {
         Args: { p_comentario: string; p_destacado?: boolean; p_oculto?: boolean }
+        Returns: undefined
+      }
+      editor_resolver_reportes: {
+        Args: { p_comentario?: string; p_estado?: string; p_nota?: string }
         Returns: undefined
       }
     }

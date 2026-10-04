@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { exigirEditor } from "@/lib/editor";
 import { fechaHora } from "@/lib/formato";
-import { cambiarEstadoNota, moderarComentarioEditor } from "../acciones";
+import { MOTIVOS_REPORTE, type MotivoReporte } from "@/lib/moderacion";
+import { cambiarEstadoNota, moderarComentarioEditor, resolverReportes } from "../acciones";
 import { BotonAccion } from "../BotonAccion";
 
 export const metadata: Metadata = { title: "Moderación" };
@@ -11,7 +12,7 @@ export default async function ModeracionEditor() {
   const { supabase } = await exigirEditor("/editor/moderacion");
 
   // Con rol de editor, RLS deja ver también notas ocultas y comentarios ocultos
-  const [{ data: notas }, { data: comentarios }] = await Promise.all([
+  const [{ data: notas }, { data: comentarios }, { data: reportes }] = await Promise.all([
     supabase
       .from("notas_comunidad")
       .select(
@@ -27,11 +28,122 @@ export default async function ModeracionEditor() {
       )
       .order("creado_en", { ascending: false })
       .limit(60),
+    supabase
+      .from("reportes")
+      .select(
+        "id, motivo, detalle, creado_en, quien:perfiles!reportes_usuario_id_fkey ( nombre ), nota:notas_comunidad ( id, texto, fuente_url, autor:perfiles!notas_comunidad_autor_id_fkey ( nombre ), noticia:noticias ( slug, titulo ) ), comentario:comentarios ( id, texto, autor:perfiles!comentarios_autor_id_fkey ( nombre ), noticia:noticias ( slug, titulo ) )",
+      )
+      .eq("estado", "pendiente")
+      .order("creado_en", { ascending: false })
+      .limit(100),
   ]);
+
+  // Un mismo contenido puede tener varios reportes: se agrupan para resolverlos juntos
+  const reportados = new Map<
+    string,
+    {
+      contenido: { notaId: string } | { comentarioId: string };
+      tipo: string;
+      texto: string;
+      fuenteUrl: string | null;
+      autor: string | undefined;
+      noticia: { slug: string; titulo: string } | null;
+      ancla: string;
+      avisos: { id: string; motivo: string; detalle: string | null; quien: string | undefined; creadoEn: string }[];
+    }
+  >();
+  for (const r of reportes ?? []) {
+    const c = r.nota ?? r.comentario;
+    if (!c) continue;
+    const grupo = reportados.get(c.id) ?? {
+      contenido: r.nota ? { notaId: c.id } : { comentarioId: c.id },
+      tipo: r.nota ? "Nota de la comunidad" : "Comentario",
+      texto: c.texto,
+      fuenteUrl: r.nota?.fuente_url ?? null,
+      autor: c.autor?.nombre,
+      noticia: c.noticia,
+      ancla: r.nota ? "#aportar-nota" : "#comentarios",
+      avisos: [],
+    };
+    grupo.avisos.push({
+      id: r.id,
+      motivo: r.motivo,
+      detalle: r.detalle,
+      quien: r.quien?.nombre,
+      creadoEn: r.creado_en,
+    });
+    reportados.set(c.id, grupo);
+  }
 
   return (
     <div className="flex flex-col gap-5">
       <h1 className="font-serif text-3xl font-bold text-slate-900">Moderación</h1>
+
+      <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+        <div className="border-b border-slate-100 p-4">
+          <h2 className="font-serif text-xl font-semibold text-slate-900">
+            Reportes pendientes ({reportados.size})
+          </h2>
+          <p className="text-sm text-slate-500">
+            Contenido que los usuarios reportaron. Ocultarlo o descartar el aviso cierra todos sus
+            reportes.
+          </p>
+        </div>
+        {reportados.size === 0 ? (
+          <p className="p-4 text-sm text-slate-500">No hay reportes pendientes.</p>
+        ) : (
+          <ul className="divide-y divide-slate-100">
+            {[...reportados.entries()].map(([id, g]) => (
+              <li key={id} className="flex flex-col gap-2 p-4">
+                <p className="text-xs text-slate-500">
+                  <span className="rounded-full bg-red-100 px-2 py-0.5 font-semibold text-red-700">
+                    {g.avisos.length} {g.avisos.length === 1 ? "reporte" : "reportes"}
+                  </span>{" "}
+                  {g.tipo} de {g.autor ?? "usuario eliminado"}
+                  {g.noticia && (
+                    <>
+                      {" · "}
+                      <Link href={`/noticia/${g.noticia.slug}${g.ancla}`} target="_blank" className="hover:text-acento">
+                        {g.noticia.titulo}
+                      </Link>
+                    </>
+                  )}
+                </p>
+                <p className="text-sm text-slate-700">{g.texto}</p>
+                {g.fuenteUrl && (
+                  <a href={g.fuenteUrl} target="_blank" rel="noopener noreferrer nofollow" className="truncate text-xs text-acento hover:underline">
+                    {g.fuenteUrl}
+                  </a>
+                )}
+                <ul className="flex flex-col gap-1 rounded-lg bg-slate-50 p-3 text-xs text-slate-600">
+                  {g.avisos.map((a) => (
+                    <li key={a.id}>
+                      <strong>{MOTIVOS_REPORTE[a.motivo as MotivoReporte] ?? a.motivo}</strong>
+                      {a.detalle && <> — {a.detalle}</>}
+                      <span className="text-slate-400">
+                        {" "}
+                        · {a.quien ?? "usuario eliminado"} · {fechaHora(a.creadoEn)}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+                <div className="flex gap-2">
+                  <BotonAccion
+                    accion={resolverReportes.bind(null, g.contenido, "atendido")}
+                    variante="peligro"
+                    confirmar="¿Ocultar este contenido para todos y cerrar sus reportes?"
+                  >
+                    Ocultar contenido
+                  </BotonAccion>
+                  <BotonAccion accion={resolverReportes.bind(null, g.contenido, "descartado")}>
+                    Descartar reportes
+                  </BotonAccion>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
 
       <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
         <div className="border-b border-slate-100 p-4">
