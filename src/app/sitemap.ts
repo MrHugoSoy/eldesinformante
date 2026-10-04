@@ -20,6 +20,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE}/noticias`, changeFrequency: "hourly", priority: 0.8 },
     { url: `${BASE}/medios`, changeFrequency: "daily", priority: 0.8 },
     { url: `${BASE}/como-calificamos`, changeFrequency: "monthly", priority: 0.5 },
+    ...["nosotros", "codigo-de-etica", "terminos", "privacidad"].map((ruta) => ({
+      url: `${BASE}/${ruta}`,
+      changeFrequency: "monthly" as const,
+      priority: 0.3,
+    })),
     ...secciones.map((s) => ({
       url: `${BASE}/seccion/${s.slug}`,
       changeFrequency: "hourly" as const,

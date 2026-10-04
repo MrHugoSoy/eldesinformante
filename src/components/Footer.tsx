@@ -8,7 +8,6 @@ const aEnlace = (s: { slug: string; nombre: string }) => ({
   href: `/seccion/${s.slug}`,
 });
 
-// Las páginas de "Sobre nosotros" todavía no existen
 const columnas = [
   { titulo: "Secciones", enlaces: secciones.slice(0, 3).map(aEnlace) },
   {
@@ -22,7 +21,8 @@ const columnas = [
     titulo: "Sobre nosotros",
     enlaces: [
       { texto: "Cómo calificamos", href: "/como-calificamos" },
-      ...["Nuestra historia", "Código de ética"].map((texto) => ({ texto, href: "#" })),
+      { texto: "Quiénes somos", href: "/nosotros" },
+      { texto: "Código de ética", href: "/codigo-de-etica" },
       { texto: "Contacto", href: `mailto:${CORREO_CONTACTO}` },
     ],
   },
@@ -78,8 +78,8 @@ export function Footer() {
             pertenecen a sus dueños y solo identifican la fuente.
           </p>
           <nav className="flex gap-4">
-            <Link href="#" className="hover:text-white">Términos y condiciones</Link>
-            <Link href="#" className="hover:text-white">Política de privacidad</Link>
+            <Link href="/terminos" className="hover:text-white">Términos y condiciones</Link>
+            <Link href="/privacidad" className="hover:text-white">Política de privacidad</Link>
             <a href={`mailto:${CORREO_CONTACTO}`} className="hover:text-white">Ayuda</a>
           </nav>
         </div>
