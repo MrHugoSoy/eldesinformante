@@ -26,8 +26,8 @@ export default async function Home() {
 
   return (
     <div className="mx-auto flex w-full max-w-[1440px] flex-1">
-      <aside className="hidden w-60 shrink-0 bg-marino-900 xl:block">
-        <div className="sticky top-16 max-h-[calc(100vh-4rem)] overflow-y-auto p-4">
+      <aside className="hidden w-60 shrink-0 xl:block">
+        <div className="sticky top-16 max-h-[calc(100vh-4rem)] overflow-y-auto py-5 pl-5">
           <NavegacionPrincipal />
         </div>
       </aside>

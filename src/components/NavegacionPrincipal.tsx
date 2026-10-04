@@ -20,9 +20,9 @@ export function NavegacionPrincipal() {
   const pathname = usePathname();
 
   return (
-    <div className="flex flex-col gap-6 text-sm">
+    <div className="flex flex-col gap-4 text-sm">
       {/* En celular estos enlaces están en la barra inferior; aquí solo van las secciones */}
-      <nav className="hidden flex-col gap-1 md:flex">
+      <nav className="hidden flex-col gap-1 rounded-xl bg-marino-900 p-2 shadow-sm md:flex">
         {enlaces.map(({ href, texto, icono: Icono }) => (
           <Link
             key={href}
@@ -37,7 +37,7 @@ export function NavegacionPrincipal() {
         ))}
       </nav>
 
-      <div>
+      <div className="rounded-xl bg-marino-900 p-2 pt-3 shadow-sm">
         <p className="mb-2 px-3 font-semibold text-white">Secciones</p>
         <ul className="flex flex-col">
           {secciones.map((s) => {
@@ -58,7 +58,7 @@ export function NavegacionPrincipal() {
         </ul>
       </div>
 
-      <div className="rounded-xl border border-white/15 bg-marino-800 p-4">
+      <div className="rounded-xl border border-white/15 bg-marino-800 p-4 shadow-sm">
         <Star className="mb-2 size-5 fill-white text-white" />
         <p className="font-serif text-lg font-semibold leading-tight text-white">
           Tu voz también importa
